@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Inventori Lab Komputer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .spec-row {
+            @apply flex gap-2 items-end;
+        }
+
+        .spec-select {
+            @apply text-[10px] p-2 border border-slate-200 rounded bg-white focus:ring-1 focus:ring-blue-400 outline-none w-full;
+        }
+
+        .spec-qty {
+            @apply text-[10px] p-2 border border-slate-200 rounded bg-white focus:ring-1 focus:ring-blue-400 outline-none w-16 text-center;
+        }
+
+        .editing-row {
+            @apply bg-blue-50 border-l-4 border-l-blue-600;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen">
+
+    <nav class="bg-blue-900 text-white p-4 shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-300" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+                LabInventory Pro <span
+                    class="text-[10px] bg-blue-700 px-2 py-0.5 rounded-full ml-2 font-normal tracking-wide italic">v4.1
+                    Fixed</span>
+            </h1>
+            <div id="stats" class="text-sm font-medium flex gap-4">
+                <div class="hidden md:block">Total Item: <span id="total-count"
+                        class="bg-blue-950 px-2 py-1 rounded">0</span></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Form Input / Edit -->
+            <div class="lg:col-span-1">
+                <div id="form-card"
+                    class="glass-morphism p-6 rounded-2xl shadow-sm border border-slate-200 sticky top-24 transition-all duration-300">
+                    <h2 id="form-title" class="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Tambah Inventori Baru
+                    </h2>
+                    <form id="inventory-form" class="space-y-4">
+                        <input type="hidden" id="edit-id">
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Nama
+                                Barang / Label Set</label>
+                            <input type="text" id="item-name" required placeholder="Contoh: PC-RAKIT-01"
+                                class="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm text-slate-700 font-medium">
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Kategori</label>
+                            <select id="item-category" onchange="toggleSpecs()"
+                                class="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                                <optgroup label="Unit Rakitan">
+                                    <option value="Set Komputer">Set Komputer (Rakitan)</option>
+                                </optgroup>
+                                <optgroup label="Data Mentah (Komponen)">
+                                    <option value="Processor (CPU)">Processor (CPU)</option>
+                                    <option value="Motherboard">Motherboard</option>
+                                    <option value="Memori (RAM)">Memori (RAM)</option>
+                                    <option value="Kartu Grafis (GPU)">Kartu Grafis (GPU)</option>
+                                    <option value="Penyimpanan (SSD/HDD)">Penyimpanan (SSD/HDD)</option>
+                                    <option value="Power Supply (PSU)">Power Supply (PSU)</option>
+                                    <option value="Casing PC">Casing PC</option>
+                                </optgroup>
+                                <optgroup label="Lainnya">
+                                    <option value="Monitor">Monitor</option>
+                                    <option value="Aksesori">Aksesori</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div id="specs-container"
+                            class="hidden p-4 bg-slate-900 rounded-xl border border-slate-700 space-y-3 shadow-inner">
+                            <h3 class="text-[10px] font-black text-blue-400 uppercase">Rincian Komponen Terpasang</h3>
+                            <div class="space-y-3">
+                                <div class="spec-row">
+                                    <div class="flex-grow">
+                                        <select id="spec-cpu" class="spec-select">
+                                            <option value="">-- Pilih CPU --</option>
+                                        </select>
+                                    </div>
+                                    <input type="number" id="spec-cpu-qty" value="1" min="1" class="spec-qty">
+                                </div>
+                                <div class="spec-row">
+                                    <div class="flex-grow">
+                                        <select id="spec-ram" class="spec-select">
+                                            <option value="">-- Pilih RAM --</option>
+                                        </select>
+                                    </div>
+                                    <input type="number" id="spec-ram-qty" value="1" min="1" class="spec-qty">
+                                </div>
+                                <div class="spec-row">
+                                    <div class="flex-grow">
+                                        <select id="spec-gpu" class="spec-select">
+                                            <option value="">-- Pilih GPU --</option>
+                                        </select>
+                                    </div>
+                                    <input type="number" id="spec-gpu-qty" value="1" min="1" class="spec-qty">
+                                </div>
+                                <div class="spec-row">
+                                    <div class="flex-grow">
+                                        <select id="spec-storage" class="spec-select">
+                                            <option value="">-- Pilih Storage --</option>
+                                        </select>
+                                    </div>
+                                    <input type="number" id="spec-storage-qty" value="1" min="1" class="spec-qty">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Stok Unit</label>
+                                <input type="number" id="item-qty" min="1" value="1" required
+                                    class="w-full p-2.5 rounded-lg border border-slate-300 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Kondisi</label>
+                                <select id="item-status"
+                                    class="w-full p-2.5 rounded-lg border border-slate-300 bg-white text-sm">
+                                    <option value="Bagus">Bagus</option>
+                                    <option value="Rusak Ringan">Rusak Ringan</option>
+                                    <option value="Rusak Berat">Rusak Berat</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Lokasi</label>
+                            <input type="text" id="item-location" placeholder="Meja A-01"
+                                class="w-full p-2.5 rounded-lg border border-slate-300 text-sm">
+                        </div>
+
+                        <div class="flex flex-col gap-2 pt-2">
+                            <button type="submit" id="submit-btn"
+                                class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-all flex justify-center items-center gap-2 text-sm uppercase">
+                                <span id="btn-text">Simpan ke Sistem</span>
+                            </button>
+                            <button type="button" id="cancel-edit" onclick="resetForm()"
+                                class="hidden w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-lg text-sm uppercase">
+                                Batal Edit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- List Data -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <input type="text" id="search-input" placeholder="Cari item, kategori, atau lokasi..."
+                        class="w-full md:w-96 px-4 py-2.5 rounded-xl border border-slate-300 outline-none shadow-sm text-sm">
+                    <div class="flex gap-2">
+                        <button id="export-btn"
+                            class="text-[10px] bg-white border border-slate-200 px-3 py-2 rounded-lg font-bold uppercase shadow-sm">Backup
+                            JSON</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
+                                    <th class="px-6 py-4">Item & Rincian</th>
+                                    <th class="px-6 py-4">Kategori</th>
+                                    <th class="px-6 py-4 text-center">Stok</th>
+                                    <th class="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="empty-state" class="hidden py-20 text-center text-slate-400 text-sm italic">
+                        Belum ada data inventori.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast"
+        class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 border border-slate-700">
+        <span id="toast-msg" class="text-xs font-bold uppercase">Pesan</span>
+    </div>
+
+    <script>
+        // State Management
+        let inventory = JSON.parse(localStorage.getItem('lab_inventory_v4')) || [];
+        let isEditing = false;
+
+        // DOM Elements
+        const form = document.getElementById('inventory-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const cancelBtn = document.getElementById('cancel-edit');
+        const formTitle = document.getElementById('form-title');
+        const listContainer = document.getElementById('inventory-list');
+        const emptyState = document.getElementById('empty-state');
+        const specsContainer = document.getElementById('specs-container');
+        const searchInput = document.getElementById('search-input');
+        const totalCountDisplay = document.getElementById('total-count');
+
+        // Functions
+        function saveToStorage() {
+            localStorage.setItem('lab_inventory_v4', JSON.stringify(inventory));
+            totalCountDisplay.textContent = inventory.length;
+        }
+
+        function updateSpecSelectors() {
+            const selects = {
+                cpu: document.getElementById('spec-cpu'),
+                ram: document.getElementById('spec-ram'),
+                gpu: document.getElementById('spec-gpu'),
+                storage: document.getElementById('spec-storage')
+            };
+
+            Object.values(selects).forEach(sel => {
+                if (!sel) return;
+                const first = sel.options[0];
+                sel.innerHTML = '';
+                sel.appendChild(first);
+            });
+
+            inventory.forEach(item => {
+                if (item.category === 'Processor (CPU)') addOption(selects.cpu, item.name);
+                if (item.category === 'Memori (RAM)') addOption(selects.ram, item.name);
+                if (item.category === 'Kartu Grafis (GPU)') addOption(selects.gpu, item.name);
+                if (item.category === 'Penyimpanan (SSD/HDD)') addOption(selects.storage, item.name);
+            });
+        }
+
+        function addOption(select, value) {
+            if (!select) return;
+            const opt = document.createElement('option');
+            opt.value = value;
+            opt.textContent = value;
+            select.appendChild(opt);
+        }
+
+        window.toggleSpecs = function () {
+            const category = document.getElementById('item-category').value;
+            if (category === 'Set Komputer') {
+                updateSpecSelectors();
+                specsContainer.classList.remove('hidden');
+            } else {
+                specsContainer.classList.add('hidden');
+            }
+        };
+
+        function renderInventory(data = inventory) {
+            listContainer.innerHTML = '';
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                data.forEach((item) => {
+                    const statusClass = item.status === 'Bagus' ? 'text-emerald-500 bg-emerald-50' :
+                        item.status === 'Rusak Ringan' ? 'text-amber-500 bg-amber-50' : 'text-rose-500 bg-rose-50';
+
+                    const editIdVal = document.getElementById('edit-id').value;
+                    const isBeingEdited = isEditing && editIdVal == item.id;
+
+                    let specsHtml = '';
+                    if (item.category === 'Set Komputer' && item.specs) {
+                        const s = item.specs;
+                        const line = (lbl, val, q) => val ? `<div><b class="text-blue-600">${lbl}:</b> ${q}x ${val}</div>` : '';
+                        specsHtml = `
+                            <div class="mt-2 text-[9px] bg-slate-100 p-2 rounded border border-slate-200 font-mono shadow-sm">
+                                ${line('CPU', s.cpu.name, s.cpu.qty)}
+                                ${line('RAM', s.ram.name, s.ram.qty)}
+                                ${line('GPU', s.gpu.name, s.gpu.qty)}
+                                ${line('SSD', s.storage.name, s.storage.qty)}
+                            </div>
+                        `;
+                    }
+
+                    const row = `
+                        <tr class="transition-all border-b border-slate-100 ${isBeingEdited ? 'editing-row' : 'hover:bg-slate-50/50'}">
+                            <td class="px-6 py-5 align-top">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-slate-900 text-sm">${item.name}</span>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[9px] px-2 py-0.5 rounded font-black uppercase ${statusClass}">${item.status}</span>
+                                        <span class="text-[10px] text-slate-400 font-medium">Loc: ${item.location}</span>
+                                    </div>
+                                    ${specsHtml}
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 align-top text-xs font-bold text-slate-400 uppercase">
+                                ${item.category}
+                            </td>
+                            <td class="px-6 py-5 align-top text-center">
+                                <span class="font-mono font-bold text-blue-800 text-sm bg-blue-50 px-2 py-1 rounded">${item.qty}</span>
+                            </td>
+                            <td class="px-6 py-5 align-top text-center">
+                                <div class="flex justify-center gap-1">
+                                    <button onclick="editItem(${item.id})" class="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Edit Data">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button onclick="deleteItem(${item.id})" class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Hapus Data">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', row);
+                });
+            }
+            saveToStorage();
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const category = document.getElementById('item-category').value;
+
+            let specs = null;
+            if (category === 'Set Komputer') {
+                specs = {
+                    cpu: { name: document.getElementById('spec-cpu').value, qty: document.getElementById('spec-cpu-qty').value },
+                    ram: { name: document.getElementById('spec-ram').value, qty: document.getElementById('spec-ram-qty').value },
+                    gpu: { name: document.getElementById('spec-gpu').value, qty: document.getElementById('spec-gpu-qty').value },
+                    storage: { name: document.getElementById('spec-storage').value, qty: document.getElementById('spec-storage-qty').value }
+                };
+            }
+
+            const itemData = {
+                id: id ? parseInt(id) : Date.now(),
+                name: document.getElementById('item-name').value,
+                category: category,
+                qty: document.getElementById('item-qty').value,
+                status: document.getElementById('item-status').value,
+                location: document.getElementById('item-location').value || 'Unset',
+                specs: specs
+            };
+
+            if (isEditing) {
+                const index = inventory.findIndex(item => item.id === parseInt(id));
+                if (index !== -1) {
+                    inventory[index] = itemData;
+                    showToast('DATA BERHASIL DIPERBARUI', 'bg-blue-600');
+                }
+            } else {
+                inventory.unshift(itemData);
+                showToast('DATA BARU DITAMBAHKAN', 'bg-emerald-600');
+            }
+
+            resetForm();
+            renderInventory();
+        });
+
+        window.editItem = function (id) {
+            const item = inventory.find(i => i.id === id);
+            if (!item) return;
+
+            isEditing = true;
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('item-name').value = item.name;
+            document.getElementById('item-category').value = item.category;
+            document.getElementById('item-qty').value = item.qty;
+            document.getElementById('item-status').value = item.status;
+            document.getElementById('item-location').value = item.location;
+
+            window.toggleSpecs();
+
+            if (item.specs) {
+                document.getElementById('spec-cpu').value = item.specs.cpu.name || "";
+                document.getElementById('spec-cpu-qty').value = item.specs.cpu.qty || 1;
+                document.getElementById('spec-ram').value = item.specs.ram.name || "";
+                document.getElementById('spec-ram-qty').value = item.specs.ram.qty || 1;
+                document.getElementById('spec-gpu').value = item.specs.gpu.name || "";
+                document.getElementById('spec-gpu-qty').value = item.specs.gpu.qty || 1;
+                document.getElementById('spec-storage').value = item.specs.storage.name || "";
+                document.getElementById('spec-storage-qty').value = item.specs.storage.qty || 1;
+            }
+
+            btnText.textContent = "Perbarui Data";
+            submitBtn.classList.replace('bg-blue-700', 'bg-amber-600');
+            submitBtn.classList.replace('hover:bg-blue-800', 'hover:bg-amber-700');
+            cancelBtn.classList.remove('hidden');
+            formTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg> Edit Inventori`;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            renderInventory();
+        };
+
+        window.resetForm = function () {
+            isEditing = false;
+            form.reset();
+            document.getElementById('edit-id').value = '';
+            btnText.textContent = "Simpan ke Sistem";
+            if (submitBtn.classList.contains('bg-amber-600')) {
+                submitBtn.classList.replace('bg-amber-600', 'bg-blue-700');
+                submitBtn.classList.replace('hover:bg-amber-700', 'hover:bg-blue-800');
+            }
+            cancelBtn.classList.add('hidden');
+            specsContainer.classList.add('hidden');
+            formTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg> Tambah Inventori Baru`;
+            renderInventory();
+        };
+
+        window.deleteItem = function (id) {
+            // Kita gunakan ID yang unik untuk pemadaman yang tepat
+            if (confirm('Hapus item ini secara permanen?')) {
+                // Filter keluar item yang mempunyai ID tersebut
+                inventory = inventory.filter(i => i.id !== id);
+
+                // Jika sedang mengedit item yang dipadam, reset form
+                const currentEditId = document.getElementById('edit-id').value;
+                if (isEditing && currentEditId == id) {
+                    window.resetForm();
+                }
+
+                // Render semula dan simpan ke localstorage
+                renderInventory();
+                showToast('DATA TELAH DIHAPUS', 'bg-rose-600');
+            }
+        };
+
+        function showToast(msg, colorClass = 'bg-slate-900') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            if (!toast || !toastMsg) return;
+            toastMsg.innerText = msg;
+            toast.className = `fixed bottom-5 right-5 transform translate-y-0 opacity-100 transition-all duration-300 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 border border-slate-700 ${colorClass}`;
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const t = e.target.value.toLowerCase();
+                const filtered = inventory.filter(i =>
+                    (i.name && i.name.toLowerCase().includes(t)) ||
+                    (i.category && i.category.toLowerCase().includes(t)) ||
+                    (i.location && i.location.toLowerCase().includes(t))
+                );
+                renderInventory(filtered);
+            });
+        }
+
+        document.getElementById('export-btn').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventory, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `inventory_lab_v4_${new Date().getTime()}.json`);
+            dl.click();
+        });
+
+        // Initialize
+        window.onload = () => {
+            renderInventory();
+            totalCountDisplay.textContent = inventory.length;
+        };
+    </script>
+</body>
+
+</html>
