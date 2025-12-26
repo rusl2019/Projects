@@ -1,30 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { InventoryItem } from "@/lib/inventory-data";
+import { useInventoryStore } from "@/lib/store"; // Import the Zustand store
 
 interface InventoryTableProps {
-  filteredInventory: InventoryItem[];
   itemToEdit: InventoryItem | null;
   isPending: boolean;
   onEditItem: (id: string) => void;
   onDeleteItem: (id: string) => Promise<void>;
+  mutatingItemId: string | null;
 }
 
 export default function InventoryTable({
-  filteredInventory,
   itemToEdit,
   isPending,
   onEditItem,
   onDeleteItem,
+  mutatingItemId,
 }: InventoryTableProps) {
+  const { filteredInventory } = useInventoryStore(); // Get filtered data from the store
+
   return (
     <div className="lg:col-span-2 space-y-4">
-      {/* Search and Export moved to client-page.tsx if it's the main container for this */}
       <Card className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <CardContent>
           <div className="overflow-x-auto">
@@ -41,7 +43,7 @@ export default function InventoryTable({
                 {filteredInventory.length === 0 ? (
                   <TableRow className="text-center">
                     <TableCell colSpan={4} className="py-20 text-slate-400 text-sm italic">
-                      Belum ada data inventori.
+                      Belum ada data inventori atau tidak ada hasil yang cocok.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -54,6 +56,7 @@ export default function InventoryTable({
                         : "text-rose-500 bg-rose-50";
 
                     const isBeingEdited = itemToEdit && itemToEdit.id === item.id;
+                    const isMutating = isPending && mutatingItemId === item.id;
 
                     let specsHtml = null;
                     if (item.category === "Set Komputer" && item.specs) {
@@ -81,7 +84,7 @@ export default function InventoryTable({
                         key={item.id}
                         className={`transition-all border-b border-slate-100 ${
                           isBeingEdited ? "editing-row" : "hover:bg-slate-50/50"
-                        }`}
+                        } ${isMutating ? "opacity-50 pointer-events-none" : ""}`}
                       >
                         <TableCell className="px-6 py-5 align-top">
                           <div className="flex flex-col">
@@ -110,27 +113,33 @@ export default function InventoryTable({
                           </span>
                         </TableCell>
                         <TableCell className="px-6 py-5 align-top text-center">
-                          <div className="flex justify-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => onEditItem(item.id)}
-                              title="Edit Data"
-                              disabled={isPending}
-                              className="text-slate-400 hover:text-blue-600 transition-colors"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => onDeleteItem(item.id)}
-                              title="Hapus Data"
-                              disabled={isPending}
-                              className="text-slate-400 hover:text-rose-600 transition-colors"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          <div className="flex justify-center items-center gap-1 h-full">
+                            {isMutating ? (
+                              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                            ) : (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => onEditItem(item.id)}
+                                  title="Edit Data"
+                                  disabled={isPending}
+                                  className="text-slate-400 hover:text-blue-600 transition-colors"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => onDeleteItem(item.id)}
+                                  title="Hapus Data"
+                                  disabled={isPending}
+                                  className="text-slate-400 hover:text-rose-600 transition-colors"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

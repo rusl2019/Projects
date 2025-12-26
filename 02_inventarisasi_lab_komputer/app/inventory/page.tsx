@@ -11,9 +11,9 @@ export default async function ServerInventoryPage() {
   return (
     <InventoryPage
       initialInventory={initialInventory}
-      categories={categories}
-      statuses={statuses}
-      locations={locations}
+      initialCategories={categories}
+      initialStatuses={statuses}
+      initialLocations={locations}
     />
   );
 }

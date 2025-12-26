@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner"; // Import sonner toast
 
 interface AddOptionModalProps {
   isOpen: boolean;
@@ -13,7 +14,6 @@ interface AddOptionModalProps {
   label: string;
   placeholder: string;
   onAdd: (value: string) => Promise<void>;
-  showToast: (msg: string, colorClass?: string) => void;
 }
 
 export default function AddOptionModal({
@@ -23,7 +23,6 @@ export default function AddOptionModal({
   label,
   placeholder,
   onAdd,
-  showToast,
 }: AddOptionModalProps) {
   const [newValue, setNewValue] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -33,7 +32,7 @@ export default function AddOptionModal({
     if (newValue.trim()) {
       startTransition(async () => {
         await onAdd(newValue.trim());
-        showToast(`${label} '${newValue.trim()}' ditambahkan!`, 'bg-emerald-600');
+        toast.success(`${label} '${newValue.trim()}' berhasil ditambahkan!`);
         setNewValue(""); // Clear input
         onOpenChange(false); // Close modal
       });
