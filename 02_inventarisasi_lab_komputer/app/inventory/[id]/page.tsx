@@ -4,6 +4,7 @@ import { HardDrive } from "lucide-react";
 import Link from "next/link"; // Import Link for navigation
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { sanitizeHtml } from '@/lib/safe-html'; // Import fungsi sanitizeHtml
 
 interface ItemDetailPageProps {
   params: Promise<{ id: string }>;
@@ -30,6 +31,9 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
       </div>
     );
   }
+
+  // Sanitize the description before rendering
+  const safeDescription = item.description ? sanitizeHtml(item.description) : '';
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -90,10 +94,10 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
                 </ul>
               </div>
             )}
-            {item.description && (
+            {safeDescription && (
               <div>
                 <p className="text-sm font-semibold text-slate-700">Deskripsi:</p>
-                <div className="prose max-w-none text-slate-600" dangerouslySetInnerHTML={{ __html: item.description }} />
+                <div className="prose max-w-none text-slate-600" dangerouslySetInnerHTML={{ __html: safeDescription }} />
               </div>
             )}
           </CardContent>
