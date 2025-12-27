@@ -42,3 +42,14 @@ npx prisma migrate dev --name init
 npx prisma generate
 npx prisma db seed
 ```
+
+## Docker
+
+```
+docker compose up -d
+
+docker ps -a --format "{{.ID}}" | xargs -r docker stop
+docker ps -a --format "{{.ID}}" | xargs -r docker rm
+docker volume ls -q | xargs -r docker volume rm
+docker network prune
+```
