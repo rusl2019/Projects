@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { addInventory, updateInventory } from "@/lib/actions";
 import { InventoryItem, Specs, ComponentSpec } from "@/lib/inventory-data";
 import { toast } from "sonner";
-import SpecSelector from "./SpecSelector"; // Import the new component
+import SpecSelector from "./SpecSelector";
 
+// The form's state now manages the full ComponentSpec, including the optional id
 interface FormState {
   isEditing: boolean;
   editId: string | null;
@@ -33,7 +34,7 @@ interface FormState {
 
 type FormAction =
   | { type: 'SET_FIELD'; field: keyof FormState; payload: any }
-  | { type: 'ADD_SPEC'; specType: keyof Specs; payload: ComponentSpec }
+  | { type: 'ADD_SPEC'; specType: keyof Specs; payload: ComponentSpec } // Payload is now the full ComponentSpec
   | { type: 'REMOVE_SPEC'; specType: keyof Specs; index: number }
   | { type: 'SET_INITIAL_ITEM'; payload: InventoryItem | null; statuses: string[] }
   | { type: 'RESET'; statuses: string[] };
@@ -170,24 +171,34 @@ export default function InventoryForm({
     showSpecsContainer,
   } = state;
 
+  // REFACTORED: This function now returns options as { id, name } objects
   const updateSpecSelectors = useCallback(() => {
-    const cpuOptions: string[] = [];
-    const ramOptions: string[] = [];
-    const gpuOptions: string[] = [];
-    const storageOptions: string[] = [];
-    const psuOptions: string[] = [];
-    const caseOptions: string[] = [];
+    const componentOptions: { [key: string]: { id: string; name: string }[] } = {
+      cpuOptions: [],
+      ramOptions: [],
+      gpuOptions: [],
+      storageOptions: [],
+      psuOptions: [],
+      caseOptions: [],
+    };
+
+    const categoryMap: { [key: string]: keyof typeof componentOptions } = {
+      "Processor (CPU)": "cpuOptions",
+      "Memori (RAM)": "ramOptions",
+      "Kartu Grafis (GPU)": "gpuOptions",
+      "Penyimpanan (SSD/HDD)": "storageOptions",
+      "Power Supply (PSU)": "psuOptions",
+      "Casing PC": "caseOptions",
+    };
 
     allInventoryItems.forEach((item) => {
-      if (item.category === "Processor (CPU)" && !cpuOptions.includes(item.name)) cpuOptions.push(item.name);
-      if (item.category === "Memori (RAM)" && !ramOptions.includes(item.name)) ramOptions.push(item.name);
-      if (item.category === "Kartu Grafis (GPU)" && !gpuOptions.includes(item.name)) gpuOptions.push(item.name);
-      if (item.category === "Penyimpanan (SSD/HDD)" && !storageOptions.includes(item.name)) storageOptions.push(item.name);
-      if (item.category === "Power Supply (PSU)" && !psuOptions.includes(item.name)) psuOptions.push(item.name);
-      if (item.category === "Casing PC" && !caseOptions.includes(item.name)) caseOptions.push(item.name);
+      const optionKey = categoryMap[item.category];
+      if (optionKey) {
+        componentOptions[optionKey].push({ id: item.id, name: item.name });
+      }
     });
 
-    return { cpuOptions, ramOptions, gpuOptions, storageOptions, psuOptions, caseOptions };
+    return componentOptions;
   }, [allInventoryItems]);
 
   const { cpuOptions, ramOptions, gpuOptions, storageOptions, psuOptions, caseOptions } = updateSpecSelectors();
@@ -205,9 +216,9 @@ export default function InventoryForm({
     dispatch({ type: 'SET_FIELD', field: 'showSpecsContainer', payload: itemCategory === "Set Komputer" });
   }, [itemCategory]);
 
-
-  const addSpec = (specType: keyof Specs, specName: string, specQty: number) => {
-    dispatch({ type: 'ADD_SPEC', specType, payload: { name: specName, qty: specQty } });
+  // REFACTORED: `addSpec` now receives the component object and quantity
+  const addSpec = (specType: keyof Specs, spec: { id: string; name: string }, specQty: number) => {
+    dispatch({ type: 'ADD_SPEC', specType, payload: { id: spec.id, name: spec.name, qty: specQty } });
   };
 
   const removeSpec = (specType: keyof Specs, index: number) => {
@@ -228,23 +239,16 @@ export default function InventoryForm({
       };
     }
 
+    // The data now includes component IDs in the specs object, which the backend expects
     const newItemData = { name: itemName, category: itemCategory, qty: itemQty, status: itemStatus, location: itemLocation, description: itemDescription, specs: specs };
 
     startTransition(async () => {
       if (isEditing && editId !== null) {
         const result = await updateInventory({ ...newItemData, id: editId } as InventoryItem);
-        if (result) {
-          toast.success("Data berhasil diperbarui!");
-        } else {
-          toast.error("Gagal memperbarui data.");
-        }
+        toast.success("Data berhasil diperbarui!");
       } else {
         const result = await addInventory(newItemData);
-        if (result) {
-          toast.success("Data baru berhasil ditambahkan!");
-        } else {
-          toast.error("Gagal menambahkan data baru.");
-        }
+        toast.success("Data baru berhasil ditambahkan!");
       }
       resetForm();
     });

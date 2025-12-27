@@ -11,26 +11,36 @@ datasource db {
 }
 
 model InventoryItem {
-  id          String          @id @default(cuid())
-  name        String
+  id          String   @id @default(cuid())
+  name        String   @unique
   category    String
   qty         Int
   status      String
   location    String
   description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  components ComponentSpec[]
+  // If this item is a "Set Komputer", this lists its parts.
+  specsAsSet  Component[] @relation("ComputerSet")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Lists where this item is used AS a component.
+  usedInSets  Component[] @relation("ComponentItem")
 }
 
-model ComponentSpec {
+// This is the join table linking a "Set" to its "Components"
+model Component {
   id    String @id @default(cuid())
-  name  String
   qty   Int
-  type  String // "cpu", "ram", "gpu", etc.
 
-  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
-  inventoryItemId String
+  // Link to the "Set Komputer" (the parent item)
+  setId String
+  set   InventoryItem @relation("ComputerSet", fields: [setId], references: [id], onDelete: Cascade)
+
+  // Link to the component item itself
+  componentId String
+  component   InventoryItem @relation("ComponentItem", fields: [componentId], references: [id], onDelete: Cascade)
+
+  // Ensure a component is only listed once per set.
+  @@unique([setId, componentId])
 }

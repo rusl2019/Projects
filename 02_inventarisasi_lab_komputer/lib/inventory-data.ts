@@ -4,6 +4,7 @@ import path from 'path';
 
 // Data-related interfaces are kept as they are used across the application
 export interface ComponentSpec {
+  id?: string; // The ID of the referenced InventoryItem
   name: string;
   qty: number;
 }

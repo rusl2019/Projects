@@ -5,14 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { X } from "lucide-react";
-import { ComponentSpec, Specs } from "@/lib/inventory-data";
+import type { ComponentSpec, Specs } from "@/lib/inventory-data";
 
 interface SpecSelectorProps {
-  specTypeLabel: string; // e.g., "CPU"
-  internalSpecType: keyof Specs; // e.g., "cpu"
-  options: string[];
+  specTypeLabel: string;
+  internalSpecType: keyof Specs;
+  // Options now expect an object with id and name
+  options: { id: string; name: string }[];
   selectedItems: ComponentSpec[];
-  onAddSpec: (specType: keyof Specs, specName: string, specQty: number) => void;
+  // onAddSpec now expects the full component object
+  onAddSpec: (specType: keyof Specs, spec: { id: string; name: string }, specQty: number) => void;
   onRemoveSpec: (specType: keyof Specs, index: number) => void;
   isPending: boolean;
 }
@@ -26,13 +28,15 @@ export default function SpecSelector({
   onRemoveSpec,
   isPending,
 }: SpecSelectorProps) {
-  const [specName, setSpecName] = useState('');
+  // This state will now hold the ID of the selected component
+  const [selectedComponentId, setSelectedComponentId] = useState('');
   const [specQty, setSpecQty] = useState(1);
 
   const handleAdd = () => {
-    if (specName && specQty > 0) {
-      onAddSpec(internalSpecType, specName, specQty);
-      setSpecName('');
+    const selectedOption = options.find(opt => opt.id === selectedComponentId);
+    if (selectedOption && specQty > 0) {
+      onAddSpec(internalSpecType, { id: selectedOption.id, name: selectedOption.name }, specQty);
+      setSelectedComponentId(''); // Reset selection
       setSpecQty(1);
     }
   };
@@ -43,8 +47,8 @@ export default function SpecSelector({
       <div className="spec-row flex items-end gap-2">
         <div className="flex-grow">
           <Select
-            value={specName}
-            onValueChange={setSpecName}
+            value={selectedComponentId}
+            onValueChange={setSelectedComponentId}
             disabled={isPending}
           >
             <SelectTrigger className="spec-select">
@@ -52,8 +56,9 @@ export default function SpecSelector({
             </SelectTrigger>
             <SelectContent>
               {options.map(option => (
-                <SelectItem key={option} value={option}>
-                  {option}
+                // Use ID for key and value, but display name
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -70,7 +75,7 @@ export default function SpecSelector({
         <Button
           type="button"
           onClick={handleAdd}
-          disabled={isPending || !specName || specQty <= 0}
+          disabled={isPending || !selectedComponentId || specQty <= 0}
           className="h-9 px-3"
         >
           Tambah

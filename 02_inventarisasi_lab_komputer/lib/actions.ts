@@ -3,7 +3,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { InventoryItem, Specs, ComponentSpec } from "./inventory-data";
+import type { InventoryItem, Specs, ComponentSpec } from "./inventory-data";
 import {
   readCategories,
   writeCategories,
@@ -17,13 +17,24 @@ import {
 // Helper Functions for Data Transformation
 // =================================================================
 
+// Maps a full category name to a short key used in the 'specs' object
+const categoryToSpecKey = (category: string): keyof Specs | null => {
+  const map: { [key: string]: keyof Specs } = {
+    "Processor (CPU)": "cpu",
+    "Memori (RAM)": "ram",
+    "Kartu Grafis (GPU)": "gpu",
+    "Penyimpanan (SSD/HDD)": "storage",
+    "Power Supply (PSU)": "psu",
+    "Casing PC": "case",
+  };
+  return map[category] || null;
+};
+
 /**
- * Transforms a Prisma InventoryItem object (with a `components` array)
- * into the application's InventoryItem format (with a `specs` object).
+ * Transforms a Prisma InventoryItem object (with nested relations)
+ * into the application's flat InventoryItem format (with a `specs` object).
  */
-function prismaToAppItem(
-  prismaItem: any // Prisma-generated type with components
-): InventoryItem {
+function prismaToAppItem(prismaItem: any): InventoryItem {
   const specs: Specs = {
     cpu: [],
     ram: [],
@@ -33,13 +44,20 @@ function prismaToAppItem(
     case: [],
   };
 
-  if (prismaItem.components) {
-    for (const component of prismaItem.components) {
-      if (component.type in specs) {
-        (specs[component.type as keyof Specs] as ComponentSpec[]).push({
-          name: component.name,
-          qty: component.qty,
-        });
+  // The new relation is called `specsAsSet`
+  if (prismaItem.specsAsSet) {
+    for (const spec of prismaItem.specsAsSet) {
+      // The actual component data is nested inside
+      const component = spec.component;
+      if (component) {
+        const specKey = categoryToSpecKey(component.category);
+        if (specKey) {
+          (specs[specKey] as ComponentSpec[]).push({
+            id: component.id, // Pass the component's own ID
+            name: component.name,
+            qty: spec.qty,
+          });
+        }
       }
     }
   }
@@ -56,41 +74,19 @@ function prismaToAppItem(
   };
 }
 
-/**
- * Transforms application item data into the format required for a Prisma create/update query.
- */
-function appToPrismaData(itemData: Omit<InventoryItem, 'id'> | InventoryItem) {
-  const { specs, ...rest } = itemData;
-  
-  const componentsToCreate: { name: string; qty: number; type: string }[] = [];
-  if (specs) {
-    for (const key in specs) {
-      const specKey = key as keyof Specs;
-      const components = specs[specKey];
-      if (Array.isArray(components)) {
-        components.forEach((comp) => {
-          componentsToCreate.push({ ...comp, type: specKey });
-        });
-      }
-    }
-  }
-
-  return {
-    ...rest,
-    components: {
-      create: componentsToCreate,
-    },
-  };
-}
-
-
 // =================================================================
 // Inventory Item Actions (CRUD)
 // =================================================================
 
 export async function getInventoryItems(): Promise<InventoryItem[]> {
   const prismaItems = await prisma.inventoryItem.findMany({
-    include: { components: true },
+    include: {
+      specsAsSet: { // Include the join table
+        include: {
+          component: true, // And include the actual component data
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
   return prismaItems.map(prismaToAppItem);
@@ -101,7 +97,13 @@ export async function getInventoryItemById(
 ): Promise<InventoryItem | undefined> {
   const prismaItem = await prisma.inventoryItem.findUnique({
     where: { id },
-    include: { components: true },
+    include: {
+      specsAsSet: {
+        include: {
+          component: true,
+        },
+      },
+    },
   });
 
   if (!prismaItem) {
@@ -112,10 +114,30 @@ export async function getInventoryItemById(
 }
 
 export async function addInventory(itemData: Omit<InventoryItem, "id">) {
-  const prismaData = appToPrismaData(itemData);
-  
+  const { specs, ...restOfItemData } = itemData;
+
+  const componentsToCreate: { qty: number; componentId: string }[] = [];
+  if (specs) {
+    Object.values(specs).forEach((specArray) => {
+      specArray.forEach((compSpec) => {
+        // The form now needs to provide the component's ID
+        if (compSpec.id) {
+          componentsToCreate.push({
+            qty: compSpec.qty,
+            componentId: compSpec.id,
+          });
+        }
+      });
+    });
+  }
+
   const newItem = await prisma.inventoryItem.create({
-    data: prismaData,
+    data: {
+      ...restOfItemData,
+      specsAsSet: {
+        create: componentsToCreate,
+      },
+    },
   });
 
   revalidatePath("/inventory");
@@ -123,17 +145,29 @@ export async function addInventory(itemData: Omit<InventoryItem, "id">) {
 }
 
 export async function updateInventory(updatedItem: InventoryItem) {
-  const { id, ...itemData } = updatedItem;
-  const prismaData = appToPrismaData(itemData);
+  const { id, specs, ...restOfItemData } = updatedItem;
 
-  // In a transaction, delete old components and create new ones
+  const componentsToCreate: { qty: number; componentId: string }[] = [];
+  if (specs) {
+    Object.values(specs).forEach((specArray) => {
+      specArray.forEach((compSpec) => {
+        if (compSpec.id) {
+          componentsToCreate.push({
+            qty: compSpec.qty,
+            componentId: compSpec.id,
+          });
+        }
+      });
+    });
+  }
+
   const updatedPrismaItem = await prisma.inventoryItem.update({
     where: { id },
     data: {
-      ...prismaData,
-      components: {
-        deleteMany: {}, // Delete all existing components for this item
-        create: prismaData.components.create, // Create the new set
+      ...restOfItemData,
+      specsAsSet: {
+        deleteMany: {}, // Delete all existing component relations for this set
+        create: componentsToCreate, // Create the new set of relations
       },
     },
   });
@@ -143,6 +177,8 @@ export async function updateInventory(updatedItem: InventoryItem) {
 }
 
 export async function deleteInventory(id: string) {
+  // Thanks to `onDelete: Cascade` in the schema, deleting an InventoryItem
+  // will also delete all `Component` records that link to it.
   await prisma.inventoryItem.delete({
     where: { id },
   });

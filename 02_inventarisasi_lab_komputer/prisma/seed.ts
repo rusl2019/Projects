@@ -1,6 +1,4 @@
-import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import { PrismaClient } from '../generated/prisma/client';
+import { prisma } from '@/lib/prisma';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -15,7 +13,7 @@ interface Specs {
 }
 
 interface InventoryItemJson {
-  id: string;
+  id: string; // Old ID from JSON, we won't use it
   name: string;
   category: string;
   qty: number;
@@ -25,63 +23,96 @@ interface InventoryItemJson {
   specs: Specs | null;
 }
 
-const connectionString = `${process.env.DATABASE_URL}`;
-
-const adapter = new PrismaBetterSqlite3({ url: connectionString });
-const prisma = new PrismaClient({ adapter });
-
 async function main() {
   console.log('Start seeding...');
 
   // 1. Clean up existing data to make seeding idempotent
   console.log('Deleting old data...');
-  await prisma.componentSpec.deleteMany({});
+  // Delete from the "many" side of the relation first
+  await prisma.component.deleteMany({});
   await prisma.inventoryItem.deleteMany({});
   console.log('Old data deleted.');
 
   // 2. Read the JSON file
   const filePath = path.join(process.cwd(), 'data', 'inventory.json');
   const jsonData = await fs.readFile(filePath, 'utf-8');
-  const inventoryItems: InventoryItemJson[] = JSON.parse(jsonData);
+  const inventoryItemsJson: InventoryItemJson[] = JSON.parse(jsonData);
 
-  // 3. Iterate and create records
-  console.log(`Found ${inventoryItems.length} items to seed.`);
-  for (const item of inventoryItems) {
-    // We don't need the old ID from the JSON file
-    const { id, specs, ...itemData } = item;
+  // 3. First Pass: Create all InventoryItem records without relations
+  console.log('--- First Pass: Creating all InventoryItems ---');
+  const createdItemsMap = new Map<string, { id: string }>();
 
-    const componentsToCreate: { name: string; qty: number; type: string }[] = [];
-    if (specs) {
-      for (const key in specs) {
-        const specKey = key as keyof Specs;
-        const components = specs[specKey];
-        if (Array.isArray(components)) {
-          components.forEach((comp) => {
-            if (comp.name && comp.qty > 0) { // Ensure component has data
-              componentsToCreate.push({ ...comp, type: specKey });
-            }
-          });
-        }
+  for (const item of inventoryItemsJson) {
+    try {
+      const createdItem = await prisma.inventoryItem.create({
+        data: {
+          name: item.name,
+          category: item.category,
+          qty: item.qty,
+          status: item.status,
+          location: item.location,
+          description: item.description || '',
+        },
+      });
+      createdItemsMap.set(item.name, { id: createdItem.id });
+      console.log(`Created item: ${item.name} (ID: ${createdItem.id})`);
+    } catch (error: any) {
+      if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+        console.warn(`WARN: Item with name "${item.name}" already exists. Skipping.`);
+      } else {
+        throw error;
       }
     }
-
-    await prisma.inventoryItem.create({
-      data: {
-        ...itemData,
-        description: item.description || '', // Ensure description is not null
-        components: {
-          create: componentsToCreate,
-        },
-      },
-    });
-    console.log(`Created item: ${item.name}`);
   }
 
-  console.log('Seeding finished.');
+  // 4. Second Pass: Create Component relations for "Set Komputer" items
+  console.log('\n--- Second Pass: Creating Component relations for Sets ---');
+  for (const item of inventoryItemsJson) {
+    if (item.category === 'Set Komputer' && item.specs) {
+      const computerSet = createdItemsMap.get(item.name);
+      if (!computerSet) {
+        console.warn(`WARN: Computer Set "${item.name}" was not found in created items. Skipping specs.`);
+        continue;
+      }
+
+      console.log(`Processing specs for: ${item.name}`);
+      const componentsToCreate: { qty: number; setId: string; componentId: string }[] = [];
+
+      for (const key in item.specs) {
+        const specKey = key as keyof Specs;
+        const components = item.specs[specKey];
+
+        if (Array.isArray(components)) {
+          for (const comp of components) {
+            const componentItem = createdItemsMap.get(comp.name);
+            if (componentItem) {
+              componentsToCreate.push({
+                qty: comp.qty,
+                setId: computerSet.id,
+                componentId: componentItem.id,
+              });
+            } else {
+              console.warn(`WARN: Component item "${comp.name}" not found for set "${item.name}". Skipping.`);
+            }
+          }
+        }
+      }
+      
+      if(componentsToCreate.length > 0) {
+        await prisma.component.createMany({
+          data: componentsToCreate
+        })
+        console.log(` -> Created ${componentsToCreate.length} component relations for ${item.name}.`);
+      }
+    }
+  }
+
+  console.log('\nSeeding finished.');
 }
 
 main()
   .catch((e) => {
+    console.error('An error occurred during seeding:');
     console.error(e);
     process.exit(1);
   })
