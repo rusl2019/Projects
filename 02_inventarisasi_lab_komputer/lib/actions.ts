@@ -2,49 +2,158 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { randomUUID } from 'crypto'; // Import randomUUID for unique IDs
-import { readInventoryData, writeInventoryData, InventoryItem, readCategories, writeCategories, readStatuses, writeStatuses, readLocations, writeLocations } from "./inventory-data";
+import { prisma } from "@/lib/prisma";
+import { InventoryItem, Specs, ComponentSpec } from "./inventory-data";
+import {
+  readCategories,
+  writeCategories,
+  readStatuses,
+  writeStatuses,
+  readLocations,
+  writeLocations,
+} from "./inventory-data";
 
-export async function addInventory(itemData: Omit<InventoryItem, 'id'>) {
-  // Ensure specs are in the new array format before adding
-  const processedItemData = ensureSpecsArrayFormat(itemData);
-  const inventory = await readInventoryData();
-  // Ensure description is an empty string if not provided, to match interface
-  const newItem = { ...processedItemData, id: randomUUID(), description: processedItemData.description || '' }; // Use randomUUID()
-  inventory.unshift(newItem);
-  await writeInventoryData(inventory);
+// =================================================================
+// Helper Functions for Data Transformation
+// =================================================================
+
+/**
+ * Transforms a Prisma InventoryItem object (with a `components` array)
+ * into the application's InventoryItem format (with a `specs` object).
+ */
+function prismaToAppItem(
+  prismaItem: any // Prisma-generated type with components
+): InventoryItem {
+  const specs: Specs = {
+    cpu: [],
+    ram: [],
+    gpu: [],
+    storage: [],
+    psu: [],
+    case: [],
+  };
+
+  if (prismaItem.components) {
+    for (const component of prismaItem.components) {
+      if (component.type in specs) {
+        (specs[component.type as keyof Specs] as ComponentSpec[]).push({
+          name: component.name,
+          qty: component.qty,
+        });
+      }
+    }
+  }
+
+  return {
+    id: prismaItem.id,
+    name: prismaItem.name,
+    category: prismaItem.category,
+    qty: prismaItem.qty,
+    status: prismaItem.status,
+    location: prismaItem.location,
+    description: prismaItem.description || "",
+    specs,
+  };
+}
+
+/**
+ * Transforms application item data into the format required for a Prisma create/update query.
+ */
+function appToPrismaData(itemData: Omit<InventoryItem, 'id'> | InventoryItem) {
+  const { specs, ...rest } = itemData;
+  
+  const componentsToCreate: { name: string; qty: number; type: string }[] = [];
+  if (specs) {
+    for (const key in specs) {
+      const specKey = key as keyof Specs;
+      const components = specs[specKey];
+      if (Array.isArray(components)) {
+        components.forEach((comp) => {
+          componentsToCreate.push({ ...comp, type: specKey });
+        });
+      }
+    }
+  }
+
+  return {
+    ...rest,
+    components: {
+      create: componentsToCreate,
+    },
+  };
+}
+
+
+// =================================================================
+// Inventory Item Actions (CRUD)
+// =================================================================
+
+export async function getInventoryItems(): Promise<InventoryItem[]> {
+  const prismaItems = await prisma.inventoryItem.findMany({
+    include: { components: true },
+    orderBy: { createdAt: "desc" },
+  });
+  return prismaItems.map(prismaToAppItem);
+}
+
+export async function getInventoryItemById(
+  id: string
+): Promise<InventoryItem | undefined> {
+  const prismaItem = await prisma.inventoryItem.findUnique({
+    where: { id },
+    include: { components: true },
+  });
+
+  if (!prismaItem) {
+    return undefined;
+  }
+
+  return prismaToAppItem(prismaItem);
+}
+
+export async function addInventory(itemData: Omit<InventoryItem, "id">) {
+  const prismaData = appToPrismaData(itemData);
+  
+  const newItem = await prisma.inventoryItem.create({
+    data: prismaData,
+  });
+
   revalidatePath("/inventory");
   return newItem;
 }
 
 export async function updateInventory(updatedItem: InventoryItem) {
-  // Ensure specs are in the new array format before updating
-  const processedItem = ensureSpecsArrayFormat(updatedItem);
-  const inventory = await readInventoryData();
-  const index = inventory.findIndex((item) => item.id === processedItem.id);
-  if (index !== -1) {
-    // Ensure description is an empty string if not provided, to match interface
-    inventory[index] = { ...processedItem, description: processedItem.description || '' };
-    await writeInventoryData(inventory);
-    revalidatePath("/inventory");
-    return processedItem;
-  }
-  return null;
+  const { id, ...itemData } = updatedItem;
+  const prismaData = appToPrismaData(itemData);
+
+  // In a transaction, delete old components and create new ones
+  const updatedPrismaItem = await prisma.inventoryItem.update({
+    where: { id },
+    data: {
+      ...prismaData,
+      components: {
+        deleteMany: {}, // Delete all existing components for this item
+        create: prismaData.components.create, // Create the new set
+      },
+    },
+  });
+
+  revalidatePath("/inventory");
+  return updatedPrismaItem;
 }
 
-export async function deleteInventory(id: string) { // Changed id type to string
-  let inventory = await readInventoryData();
-  inventory = inventory.filter((item) => item.id !== id); // comparison is now string-to-string
-  await writeInventoryData(inventory);
+export async function deleteInventory(id: string) {
+  await prisma.inventoryItem.delete({
+    where: { id },
+  });
   revalidatePath("/inventory");
   return id;
 }
 
-export async function getInventoryItems(): Promise<InventoryItem[]> {
-  const inventory = await readInventoryData();
-  // Migrate all items to new specs structure if needed
-  return inventory.map(item => migrateSpecsStructure(item));
-}
+
+// =================================================================
+// Category, Status, Location Actions (Still using JSON files)
+// =================================================================
 
 export async function getAllCategories(): Promise<string[]> {
   return readCategories();
@@ -83,69 +192,5 @@ export async function addLocation(location: string): Promise<void> {
     await writeLocations(locations);
     revalidatePath("/inventory");
   }
-}
-
-export async function getInventoryItemById(id: string): Promise<InventoryItem | undefined> { // Changed id type to string
-  console.log(`[DEBUG] getInventoryItemById: Searching for ID: ${id}`);
-  const inventory = await readInventoryData();
-  console.log(`[DEBUG] getInventoryItemById: Inventory loaded, count: ${inventory.length}`);
-  let foundItem = inventory.find(item => item.id === id); // comparison is now string-to-string
-
-  // Handle migration from old specs structure to new array structure
-  if (foundItem && foundItem.specs) {
-    foundItem = migrateSpecsStructure(foundItem);
-  }
-
-  console.log(`[DEBUG] getInventoryItemById: Item found: ${!!foundItem}`); // !!foundItem will be true if found, false otherwise
-  return foundItem;
-}
-
-// Helper function to ensure specs are in the new array format
-function ensureSpecsArrayFormat(item: Omit<InventoryItem, 'id'> | InventoryItem): Omit<InventoryItem, 'id'> | InventoryItem {
-  if (!item.specs) return item;
-
-  // Check if specs are in the old format (single objects)
-  if (item.specs.cpu && typeof (item.specs.cpu as any).name === 'string') {
-    // Old format detected, convert to new format
-    const oldSpecs = item.specs as any;
-    return {
-      ...item,
-      specs: {
-        cpu: oldSpecs.cpu.name ? [{ name: oldSpecs.cpu.name, qty: oldSpecs.cpu.qty }] : [],
-        ram: oldSpecs.ram.name ? [{ name: oldSpecs.ram.name, qty: oldSpecs.ram.qty }] : [],
-        gpu: oldSpecs.gpu.name ? [{ name: oldSpecs.gpu.name, qty: oldSpecs.gpu.qty }] : [],
-        storage: oldSpecs.storage.name ? [{ name: oldSpecs.storage.name, qty: oldSpecs.storage.qty }] : [],
-        psu: oldSpecs.psu && oldSpecs.psu.name ? [{ name: oldSpecs.psu.name, qty: oldSpecs.psu.qty }] : [],
-        case: oldSpecs.case && oldSpecs.case.name ? [{ name: oldSpecs.case.name, qty: oldSpecs.case.qty }] : [],
-      }
-    };
-  }
-
-  // If already in new format, just return the item
-  return item;
-}
-
-// Helper function to migrate old specs structure to new array structure
-function migrateSpecsStructure(item: InventoryItem): InventoryItem {
-  if (!item.specs) return item;
-
-  // Check if specs are in the old format (single objects)
-  if (item.specs.cpu && typeof (item.specs.cpu as any).name === 'string') {
-    // Old format detected, convert to new format
-    const oldSpecs = item.specs as any;
-    return {
-      ...item,
-      specs: {
-        cpu: oldSpecs.cpu.name ? [{ name: oldSpecs.cpu.name, qty: oldSpecs.cpu.qty }] : [],
-        ram: oldSpecs.ram.name ? [{ name: oldSpecs.ram.name, qty: oldSpecs.ram.qty }] : [],
-        gpu: oldSpecs.gpu.name ? [{ name: oldSpecs.gpu.name, qty: oldSpecs.gpu.qty }] : [],
-        storage: oldSpecs.storage.name ? [{ name: oldSpecs.storage.name, qty: oldSpecs.storage.qty }] : [],
-        psu: oldSpecs.psu && oldSpecs.psu.name ? [{ name: oldSpecs.psu.name, qty: oldSpecs.psu.qty }] : [],
-        case: oldSpecs.case && oldSpecs.case.name ? [{ name: oldSpecs.case.name, qty: oldSpecs.case.qty }] : [],
-      }
-    };
-  }
-
-  return item;
 }
 

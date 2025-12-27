@@ -2,8 +2,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'inventory.json');
-
+// Data-related interfaces are kept as they are used across the application
 export interface ComponentSpec {
   name: string;
   qty: number;
@@ -29,31 +28,8 @@ export interface InventoryItem {
   specs: Specs | null;
 }
 
-export async function readInventoryData(): Promise<InventoryItem[]> {
-  try {
-    const data = await fs.readFile(DATA_FILE_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      // File does not exist, return empty array
-      return [];
-    }
-    console.error('Error reading inventory data:', error);
-    return [];
-  }
-}
 
-export async function writeInventoryData(data: InventoryItem[]): Promise<void> {
-  try {
-    // Ensure the directory exists
-    await fs.mkdir(path.dirname(DATA_FILE_PATH), { recursive: true });
-    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing inventory data:', error);
-    throw error;
-  }
-}
-
+// Functions for reading/writing auxiliary JSON files (categories, statuses, locations) are kept
 async function readJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
   try {
     const data = await fs.readFile(filePath, 'utf-8');
