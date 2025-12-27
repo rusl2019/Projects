@@ -8,6 +8,7 @@ export interface ComponentSpec {
 
 export interface Specs {
   cpu: ComponentSpec[];
+  motherboard: ComponentSpec[];
   ram: ComponentSpec[];
   gpu: ComponentSpec[];
   storage: ComponentSpec[];

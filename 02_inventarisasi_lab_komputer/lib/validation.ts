@@ -10,6 +10,7 @@ export const ComponentSchema = z.object({
 // Schema for the 'specs' object within an InventoryItem (for Set Komputer)
 export const SpecsSchema = z.object({
   cpu: z.array(ComponentSchema).optional(),
+  motherboard: z.array(ComponentSchema).optional(),
   ram: z.array(ComponentSchema).optional(),
   gpu: z.array(ComponentSchema).optional(),
   storage: z.array(ComponentSchema).optional(),
@@ -22,7 +23,7 @@ export const InventoryItemSchema = z.object({
   id: z.string().cuid('ID item tidak valid.').optional(), // ID is optional for adding, required for updating
   name: z.string().min(3, "Nama item harus minimal 3 karakter."),
   category: z.string().min(1, "Kategori item tidak boleh kosong."),
-  qty: z.number().int().min(1, "Kuantitas item harus minimal 1."),
+  qty: z.number().int().min(0, "Kuantitas item harus angka positif."),
   status: z.string().min(1, "Status item tidak boleh kosong."),
   location: z.string().min(1, "Lokasi item tidak boleh kosong."),
   description: z.string().optional(), // Description can be empty

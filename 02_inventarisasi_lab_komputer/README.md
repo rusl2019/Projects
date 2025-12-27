@@ -41,6 +41,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 npx prisma migrate dev --name init
 npx prisma generate
 npx prisma db seed
+
+npx prisma studio --config ./prisma.config.ts --port 8000 --browser none
 ```
 
 ## Docker

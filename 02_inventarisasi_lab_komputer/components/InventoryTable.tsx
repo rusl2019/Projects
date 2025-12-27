@@ -70,6 +70,7 @@ export default function InventoryTable({
                       specsHtml = (
                         <div className="mt-2 text-[9px] bg-slate-100 p-2 rounded border border-slate-200 font-mono shadow-sm">
                           {line("CPU", s.cpu)}
+                          {line("Mobo", s.motherboard)}
                           {line("RAM", s.ram)}
                           {line("GPU", s.gpu)}
                           {line("SSD", s.storage)}

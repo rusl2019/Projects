@@ -76,6 +76,9 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
                   {item.specs.cpu.length > 0 && item.specs.cpu.map((cpu, index) => (
                     <li key={`cpu-${index}`}>CPU: {cpu.qty}x {cpu.name}</li>
                   ))}
+                  {item.specs.motherboard.length > 0 && item.specs.motherboard.map((motherboard, index) => (
+                    <li key={`motherboard-${index}`}>Motherboard: {motherboard.qty}x {motherboard.name}</li>
+                  ))}
                   {item.specs.ram.length > 0 && item.specs.ram.map((ram, index) => (
                     <li key={`ram-${index}`}>RAM: {ram.qty}x {ram.name}</li>
                   ))}

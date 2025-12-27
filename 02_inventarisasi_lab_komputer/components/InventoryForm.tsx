@@ -24,6 +24,7 @@ interface FormState {
   itemLocation: string;
   itemDescription: string;
   selectedCpus: ComponentSpec[];
+  selectedMotherboards: ComponentSpec[];
   selectedRams: ComponentSpec[];
   selectedGpus: ComponentSpec[];
   selectedStorages: ComponentSpec[];
@@ -49,6 +50,7 @@ const initialFormState: FormState = {
   itemLocation: "",
   itemDescription: "",
   selectedCpus: [],
+  selectedMotherboards: [],
   selectedRams: [],
   selectedGpus: [],
   selectedStorages: [],
@@ -64,6 +66,7 @@ function formReducer(state: FormState, action: FormAction): FormState {
     case 'ADD_SPEC': {
       const specKeyMap: { [key in keyof Specs]: keyof FormState } = {
         cpu: 'selectedCpus',
+        motherboard: 'selectedMotherboards',
         ram: 'selectedRams',
         gpu: 'selectedGpus',
         storage: 'selectedStorages',
@@ -80,6 +83,7 @@ function formReducer(state: FormState, action: FormAction): FormState {
     case 'REMOVE_SPEC': {
        const specKeyMap: { [key in keyof Specs]: keyof FormState } = {
         cpu: 'selectedCpus',
+        motherboard: 'selectedMotherboards',
         ram: 'selectedRams',
         gpu: 'selectedGpus',
         storage: 'selectedStorages',
@@ -109,6 +113,7 @@ function formReducer(state: FormState, action: FormAction): FormState {
           itemLocation: item.location,
           itemDescription: item.description || "",
           selectedCpus: item.specs?.cpu || [],
+          selectedMotherboards: item.specs?.motherboard || [],
           selectedRams: item.specs?.ram || [],
           selectedGpus: item.specs?.gpu || [],
           selectedStorages: item.specs?.storage || [],
@@ -164,6 +169,7 @@ export default function InventoryForm({
     itemLocation,
     itemDescription,
     selectedCpus,
+    selectedMotherboards,
     selectedRams,
     selectedGpus,
     selectedStorages,
@@ -176,6 +182,7 @@ export default function InventoryForm({
   const updateSpecSelectors = useCallback(() => {
     const componentOptions: { [key: string]: { id: string; name: string }[] } = {
       cpuOptions: [],
+      motherboardOptions: [],
       ramOptions: [],
       gpuOptions: [],
       storageOptions: [],
@@ -185,6 +192,7 @@ export default function InventoryForm({
 
     const categoryMap: { [key: string]: keyof typeof componentOptions } = {
       "Processor (CPU)": "cpuOptions",
+      "Motherboard": "motherboardOptions",
       "Memori (RAM)": "ramOptions",
       "Kartu Grafis (GPU)": "gpuOptions",
       "Penyimpanan (SSD/HDD)": "storageOptions",
@@ -202,7 +210,7 @@ export default function InventoryForm({
     return componentOptions;
   }, [allInventoryItems]);
 
-  const { cpuOptions, ramOptions, gpuOptions, storageOptions, psuOptions, caseOptions } = updateSpecSelectors();
+  const { cpuOptions, motherboardOptions, ramOptions, gpuOptions, storageOptions, psuOptions, caseOptions } = updateSpecSelectors();
 
   const resetForm = useCallback(() => {
     dispatch({ type: 'RESET', statuses });
@@ -243,6 +251,7 @@ export default function InventoryForm({
     if (itemCategory === "Set Komputer") {
       specs = {
         cpu: selectedCpus,
+        motherboard: selectedMotherboards,
         ram: selectedRams,
         gpu: selectedGpus,
         storage: selectedStorages,
@@ -354,15 +363,16 @@ export default function InventoryForm({
               <h3 className="text-[10px] font-bold text-slate-700 uppercase">Rincian Komponen Terpasang</h3>
               <div className="space-y-3">
                 <SpecSelector specTypeLabel="CPU" internalSpecType="cpu" options={cpuOptions} selectedItems={selectedCpus} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
+                <SpecSelector specTypeLabel="Motherboard" internalSpecType="motherboard" options={motherboardOptions} selectedItems={selectedMotherboards} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
                 <SpecSelector specTypeLabel="RAM" internalSpecType="ram" options={ramOptions} selectedItems={selectedRams} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
                 <SpecSelector specTypeLabel="GPU" internalSpecType="gpu" options={gpuOptions} selectedItems={selectedGpus} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
                 <SpecSelector specTypeLabel="Storage" internalSpecType="storage" options={storageOptions} selectedItems={selectedStorages} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
                 <SpecSelector specTypeLabel="PSU" internalSpecType="psu" options={psuOptions} selectedItems={selectedPsus} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
                 <SpecSelector specTypeLabel="Casing" internalSpecType="case" options={caseOptions} selectedItems={selectedCases} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
               </div>
-              {(getFieldError('specs') || getFieldError('specs.cpu') || getFieldError('specs.ram') || getFieldError('specs.gpu') || getFieldError('specs.storage') || getFieldError('specs.psu') || getFieldError('specs.case')) && (
+              {(getFieldError('specs') || getFieldError('specs.cpu') || getFieldError('specs.motherboard') || getFieldError('specs.ram') || getFieldError('specs.gpu') || getFieldError('specs.storage') || getFieldError('specs.psu') || getFieldError('specs.case')) && (
                 <p className="text-red-500 text-xs mt-1">
-                  {getFieldError('specs') || getFieldError('specs.cpu') || getFieldError('specs.ram') || getFieldError('specs.gpu') || getFieldError('specs.storage') || getFieldError('specs.psu') || getFieldError('specs.case')}
+                  {getFieldError('specs') || getFieldError('specs.cpu') || getFieldError('specs.motherboard') || getFieldError('specs.ram') || getFieldError('specs.gpu') || getFieldError('specs.storage') || getFieldError('specs.psu') || getFieldError('specs.case')}
                 </p>
               )}
             </div>
@@ -373,7 +383,7 @@ export default function InventoryForm({
                 <Input
                 type="number"
                 id="item-qty"
-                min="1"
+                min="0"
                 required
                 className="w-full p-2.5 rounded-lg border border-slate-300 text-sm"
                 value={itemQty}

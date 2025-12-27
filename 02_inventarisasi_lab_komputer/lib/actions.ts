@@ -4,7 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { InventoryItem, Specs, ComponentSpec } from "./inventory-data";
-import { InventoryItemSchema, OptionSchema } from './validation'; // Import Zod schemas
+import { InventoryItemSchema, OptionSchema } from "./validation"; // Import Zod schemas
 import { ZodFormattedError } from "zod";
 
 // =================================================================
@@ -15,6 +15,7 @@ import { ZodFormattedError } from "zod";
 const categoryToSpecKey = (category: string): keyof Specs | null => {
   const map: { [key: string]: keyof Specs } = {
     "Processor (CPU)": "cpu",
+    "Motherboard": "motherboard",
     "Memori (RAM)": "ram",
     "Kartu Grafis (GPU)": "gpu",
     "Penyimpanan (SSD/HDD)": "storage",
@@ -31,6 +32,7 @@ const categoryToSpecKey = (category: string): keyof Specs | null => {
 function prismaToAppItem(prismaItem: any): InventoryItem {
   const specs: Specs = {
     cpu: [],
+    motherboard: [],
     ram: [],
     gpu: [],
     storage: [],
@@ -76,7 +78,7 @@ const formatErrors = (errors: ZodFormattedError<any>) => {
       formatted[key] = errors[key]._errors;
     }
     // Handle nested errors for specs
-    if (errors[key] && typeof errors[key] === 'object' && !Array.isArray(errors[key])) {
+    if (errors[key] && typeof errors[key] === "object" && !Array.isArray(errors[key])) {
       const nestedErrors = formatErrors(errors[key] as ZodFormattedError<any>);
       for (const nestedKey in nestedErrors) {
         formatted[`${key}.${nestedKey}`] = nestedErrors[nestedKey];
@@ -100,7 +102,8 @@ type ActionResponse<T> = {
 export async function getInventoryItems(): Promise<InventoryItem[]> {
   const prismaItems = await prisma.inventoryItem.findMany({
     include: {
-      specsAsSet: { // Include the join table
+      specsAsSet: {
+        // Include the join table
         include: {
           component: true, // And include the actual component data
         },
@@ -111,9 +114,7 @@ export async function getInventoryItems(): Promise<InventoryItem[]> {
   return prismaItems.map(prismaToAppItem);
 }
 
-export async function getInventoryItemById(
-  id: string
-): Promise<InventoryItem | undefined> {
+export async function getInventoryItemById(id: string): Promise<InventoryItem | undefined> {
   const prismaItem = await prisma.inventoryItem.findUnique({
     where: { id },
     include: {
@@ -132,9 +133,7 @@ export async function getInventoryItemById(
   return prismaToAppItem(prismaItem);
 }
 
-export async function addInventory(
-  itemData: Omit<InventoryItem, "id">
-): Promise<ActionResponse<InventoryItem>> {
+export async function addInventory(itemData: Omit<InventoryItem, "id">): Promise<ActionResponse<InventoryItem>> {
   const parsed = InventoryItemSchema.safeParse(itemData);
 
   if (!parsed.success) {
@@ -146,46 +145,60 @@ export async function addInventory(
   }
 
   const { specs, ...restOfItemData } = parsed.data;
-
-  const componentsToCreate: { qty: number; componentId: string }[] = [];
-  if (specs) {
-    Object.values(specs).forEach((specArray) => {
-      specArray?.forEach((compSpec) => {
-        if (compSpec.id) {
-          componentsToCreate.push({
-            qty: compSpec.qty,
-            componentId: compSpec.id,
-          });
-        }
-      });
-    });
-  }
+  const isSetKomputer = restOfItemData.category === "Set Komputer";
 
   try {
-    const newItem = await prisma.inventoryItem.create({
-      data: {
-        ...restOfItemData,
-        specsAsSet: {
-          create: componentsToCreate,
+    const newItem = await prisma.$transaction(async (tx) => {
+      // --- Start Stock Management Logic ---
+      const componentsToCreate: { qty: number; componentId: string }[] = [];
+      if (isSetKomputer && specs) {
+        for (const specKey in specs) {
+          const componentArray = specs[specKey as keyof Specs];
+          if (componentArray) {
+            for (const compSpec of componentArray) {
+              if (compSpec.id) {
+                // Check stock availability
+                const componentItem = await tx.inventoryItem.findUnique({ where: { id: compSpec.id } });
+                if (!componentItem || componentItem.qty < compSpec.qty) {
+                  throw new Error(`Stok untuk '${compSpec.name}' tidak mencukupi (tersisa: ${componentItem?.qty || 0}).`);
+                }
+                // Decrement stock
+                await tx.inventoryItem.update({
+                  where: { id: compSpec.id },
+                  data: { qty: { decrement: compSpec.qty } },
+                });
+                componentsToCreate.push({ qty: compSpec.qty, componentId: compSpec.id });
+              }
+            }
+          }
+        }
+      }
+      // --- End Stock Management Logic ---
+
+      const createdItem = await tx.inventoryItem.create({
+        data: {
+          ...restOfItemData,
+          specsAsSet: {
+            create: componentsToCreate,
+          },
         },
-      },
+      });
+      return createdItem;
     });
 
     revalidatePath("/inventory");
     return { success: true, data: prismaToAppItem(newItem), message: "Item berhasil ditambahkan!" };
   } catch (error: any) {
-    // Handle Prisma unique constraint error for 'name'
-    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+    if (error.code === "P2002" && error.meta?.target?.includes("name")) {
       return { success: false, errors: { name: ["Nama item ini sudah ada. Harap gunakan nama lain."] }, message: "Nama item duplikat." };
     }
     console.error("Error adding inventory item:", error);
-    return { success: false, message: "Terjadi kesalahan saat menambahkan item." };
+    // Return specific stock error message
+    return { success: false, message: error.message || "Terjadi kesalahan saat menambahkan item." };
   }
 }
 
-export async function updateInventory(
-  updatedItem: InventoryItem
-): Promise<ActionResponse<InventoryItem>> {
+export async function updateInventory(updatedItem: InventoryItem): Promise<ActionResponse<InventoryItem>> {
   const parsed = InventoryItemSchema.safeParse(updatedItem);
 
   if (!parsed.success) {
@@ -196,59 +209,154 @@ export async function updateInventory(
     };
   }
 
-  const { id, specs, ...restOfItemData } = parsed.data;
-
-  const componentsToCreate: { qty: number; componentId: string }[] = [];
-  if (specs) {
-    Object.values(specs).forEach((specArray) => {
-      specArray?.forEach((compSpec) => {
-        if (compSpec.id) {
-          componentsToCreate.push({
-            qty: compSpec.qty,
-            componentId: compSpec.id,
-          });
-        }
-      });
-    });
-  }
+  const { id, specs: newSpecs, ...restOfItemData } = parsed.data;
+  const isNowSetKomputer = restOfItemData.category === "Set Komputer";
 
   try {
-    const updatedPrismaItem = await prisma.inventoryItem.update({
-      where: { id },
-      data: {
-        ...restOfItemData,
-        specsAsSet: {
-          deleteMany: {}, // Delete all existing component relations for this set
-          create: componentsToCreate, // Create the new set of relations
+    const updatedPrismaItem = await prisma.$transaction(async (tx) => {
+      const oldItem = await tx.inventoryItem.findUnique({
+        where: { id },
+        include: { specsAsSet: { include: { component: true } } },
+      });
+
+      if (!oldItem) throw new Error("Item tidak ditemukan untuk diperbarui.");
+
+      const wasSetKomputer = oldItem.category === "Set Komputer";
+
+      const oldComponents = new Map<string, number>();
+      if (wasSetKomputer) {
+        oldItem.specsAsSet.forEach(spec => {
+          oldComponents.set(spec.componentId, spec.qty);
+        });
+      }
+
+      const newComponents = new Map<string, {name: string, qty: number}>();
+       if (isNowSetKomputer && newSpecs) {
+         Object.values(newSpecs).flat().forEach(spec => {
+            if(spec.id) {
+                newComponents.set(spec.id, { name: spec.name, qty: spec.qty });
+            }
+         });
+       }
+
+      // Calculate delta
+      const stockChanges = new Map<string, { name: string, change: number }>();
+
+      // Items to be returned to stock
+      oldComponents.forEach((oldQty, componentId) => {
+        const newComp = newComponents.get(componentId);
+        const newQty = newComp ? newComp.qty : 0;
+        const change = oldQty - newQty; // Positive if quantity decreased or removed
+        if (change > 0) {
+            stockChanges.set(componentId, { name: oldItem.specsAsSet.find(s => s.componentId === componentId)?.component.name || 'N/A', change: change }); // Increment stock
+        }
+      });
+      
+      // Items to be taken from stock
+      newComponents.forEach((newComp, componentId) => {
+        const oldQty = oldComponents.get(componentId) || 0;
+        const change = oldQty - newComp.qty; // Negative if quantity increased or added
+         if (change < 0) {
+           stockChanges.set(componentId, { name: newComp.name, change: change }); // Decrement stock
+         }
+      });
+
+      // Validate stock for decrements
+      for (const [componentId, { name, change }] of stockChanges.entries()) {
+        if (change < 0) { // Decrementing stock
+          const componentItem = await tx.inventoryItem.findUnique({ where: { id: componentId } });
+          const requiredQty = Math.abs(change);
+          if (!componentItem || componentItem.qty < requiredQty) {
+            throw new Error(`Stok untuk '${name}' tidak mencukupi (tersisa: ${componentItem?.qty || 0}, butuh: ${requiredQty}).`);
+          }
+        }
+      }
+
+      // Apply stock changes
+      for (const [componentId, { change }] of stockChanges.entries()) {
+         await tx.inventoryItem.update({
+           where: { id: componentId },
+           data: { qty: { increment: change } }, // increment handles both positive and negative
+         });
+      }
+      
+      const componentsToCreate: { qty: number; componentId: string }[] = [];
+      if(isNowSetKomputer) {
+          newComponents.forEach((comp, id) => {
+              componentsToCreate.push({qty: comp.qty, componentId: id});
+          })
+      }
+
+      // Finally, update the item itself
+      const result = await tx.inventoryItem.update({
+        where: { id },
+        data: {
+          ...restOfItemData,
+          specsAsSet: {
+            deleteMany: {}, // Delete all existing component relations
+            create: componentsToCreate, // Create new relations
+          },
         },
-      },
+      });
+
+      return result;
     });
 
     revalidatePath("/inventory");
-    return { success: true, data: prismaToAppItem(updatedPrismaItem), message: "Item berhasil diperbarui!" };
+    // We need to fetch the item again to return it in the correct format
+    const finalItem = await getInventoryItemById(updatedPrismaItem.id);
+    return { success: true, data: finalItem, message: "Item berhasil diperbarui!" };
   } catch (error: any) {
-    // Handle Prisma unique constraint error for 'name'
-    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+    if (error.code === "P2002" && error.meta?.target?.includes("name")) {
       return { success: false, errors: { name: ["Nama item ini sudah ada. Harap gunakan nama lain."] }, message: "Nama item duplikat." };
     }
     console.error("Error updating inventory item:", error);
-    return { success: false, message: "Terjadi kesalahan saat memperbarui item." };
+    return { success: false, message: error.message || "Terjadi kesalahan saat memperbarui item." };
   }
 }
 
 export async function deleteInventory(id: string): Promise<ActionResponse<string>> {
   try {
-    await prisma.inventoryItem.delete({
-      where: { id },
+    // Check if the item is used as a component in any set
+     const usageCount = await prisma.component.count({ where: { componentId: id } });
+     if (usageCount > 0) {
+       return { success: false, message: `Item ini tidak dapat dihapus karena sedang digunakan di ${usageCount} Set Komputer.` };
+     }
+
+    await prisma.$transaction(async (tx) => {
+      // Find the item to be deleted, including its own components if it's a set
+      const itemToDelete = await tx.inventoryItem.findUnique({
+        where: { id },
+        include: { specsAsSet: true }, // To see if it's a set and what's inside
+      });
+
+      if (!itemToDelete) {
+        throw new Error("Item tidak ditemukan.");
+      }
+      
+      // If it's a Set Komputer, return its components to stock
+      if (itemToDelete.category === "Set Komputer" && itemToDelete.specsAsSet.length > 0) {
+        for (const spec of itemToDelete.specsAsSet) {
+          await tx.inventoryItem.update({
+            where: { id: spec.componentId },
+            data: { qty: { increment: spec.qty } },
+          });
+        }
+      }
+
+      // Now, delete the item itself
+      await tx.inventoryItem.delete({
+        where: { id },
+      });
     });
+
     revalidatePath("/inventory");
     return { success: true, data: id, message: "Item berhasil dihapus." };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting inventory item:", error);
-    return { success: false, message: "Terjadi kesalahan saat menghapus item." };
+    return { success: false, message: error.message || "Terjadi kesalahan saat menghapus item." };
   }
 }
-
 
 // =================================================================
 // Category, Status, Location Actions (NOW using Prisma with Validation)
