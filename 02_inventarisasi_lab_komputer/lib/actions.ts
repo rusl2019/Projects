@@ -4,14 +4,8 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { InventoryItem, Specs, ComponentSpec } from "./inventory-data";
-import {
-  readCategories,
-  writeCategories,
-  readStatuses,
-  writeStatuses,
-  readLocations,
-  writeLocations,
-} from "./inventory-data";
+// Remove JSON file specific imports for master data
+// import { readCategories, writeCategories, readStatuses, writeStatuses, readLocations, writeLocations } from "./inventory-data";
 
 // =================================================================
 // Helper Functions for Data Transformation
@@ -188,45 +182,44 @@ export async function deleteInventory(id: string) {
 
 
 // =================================================================
-// Category, Status, Location Actions (Still using JSON files)
+// Category, Status, Location Actions (NOW using Prisma)
 // =================================================================
 
 export async function getAllCategories(): Promise<string[]> {
-  return readCategories();
+  const categories = await prisma.category.findMany({ select: { name: true } });
+  return categories.map(c => c.name);
 }
 
 export async function addCategory(category: string): Promise<void> {
-  const categories = await readCategories();
-  if (!categories.includes(category)) {
-    categories.push(category);
-    await writeCategories(categories);
-    revalidatePath("/inventory"); // Revalidate to update dropdowns
+  const existingCategory = await prisma.category.findUnique({ where: { name: category } });
+  if (!existingCategory) {
+    await prisma.category.create({ data: { name: category } });
+    revalidatePath("/inventory");
   }
 }
 
 export async function getAllStatuses(): Promise<string[]> {
-  return readStatuses();
+  const statuses = await prisma.status.findMany({ select: { name: true } });
+  return statuses.map(s => s.name);
 }
 
 export async function addStatus(status: string): Promise<void> {
-  const statuses = await readStatuses();
-  if (!statuses.includes(status)) {
-    statuses.push(status);
-    await writeStatuses(statuses);
+  const existingStatus = await prisma.status.findUnique({ where: { name: status } });
+  if (!existingStatus) {
+    await prisma.status.create({ data: { name: status } });
     revalidatePath("/inventory");
   }
 }
 
 export async function getAllLocations(): Promise<string[]> {
-  return readLocations();
+  const locations = await prisma.location.findMany({ select: { name: true } });
+  return locations.map(l => l.name);
 }
 
 export async function addLocation(location: string): Promise<void> {
-  const locations = await readLocations();
-  if (!locations.includes(location)) {
-    locations.push(location);
-    await writeLocations(locations);
+  const existingLocation = await prisma.location.findUnique({ where: { name: location } });
+  if (!existingLocation) {
+    await prisma.location.create({ data: { name: location } });
     revalidatePath("/inventory");
   }
 }
-

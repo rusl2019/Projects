@@ -44,3 +44,18 @@ model Component {
   // Ensure a component is only listed once per set.
   @@unique([setId, componentId])
 }
+
+model Category {
+  id   String @id @default(cuid())
+  name String @unique
+}
+
+model Status {
+  id   String @id @default(cuid())
+  name String @unique
+}
+
+model Location {
+  id   String @id @default(cuid())
+  name String @unique
+}

@@ -28,18 +28,48 @@ async function main() {
 
   // 1. Clean up existing data to make seeding idempotent
   console.log('Deleting old data...');
-  // Delete from the "many" side of the relation first
   await prisma.component.deleteMany({});
   await prisma.inventoryItem.deleteMany({});
+  await prisma.category.deleteMany({});
+  await prisma.status.deleteMany({});
+  await prisma.location.deleteMany({});
   console.log('Old data deleted.');
 
-  // 2. Read the JSON file
+  // 2. Seed Master Data (Categories, Statuses, Locations)
+  console.log('\n--- Seeding Master Data ---');
+
+  // Categories
+  const categoriesFilePath = path.join(process.cwd(), 'data', 'categories.json');
+  const categoriesJson: string[] = JSON.parse(await fs.readFile(categoriesFilePath, 'utf-8'));
+  for (const catName of categoriesJson) {
+    await prisma.category.create({ data: { name: catName } });
+    console.log(`Seeded Category: ${catName}`);
+  }
+
+  // Statuses
+  const statusesFilePath = path.join(process.cwd(), 'data', 'statuses.json');
+  const statusesJson: string[] = JSON.parse(await fs.readFile(statusesFilePath, 'utf-8'));
+  for (const statusName of statusesJson) {
+    await prisma.status.create({ data: { name: statusName } });
+    console.log(`Seeded Status: ${statusName}`);
+  }
+
+  // Locations
+  const locationsFilePath = path.join(process.cwd(), 'data', 'locations.json');
+  const locationsJson: string[] = JSON.parse(await fs.readFile(locationsFilePath, 'utf-8'));
+  for (const locName of locationsJson) {
+    await prisma.location.create({ data: { name: locName } });
+    console.log(`Seeded Location: ${locName}`);
+  }
+  console.log('Master data seeding finished.');
+
+
+  // 3. First Pass (Existing Logic): Create all InventoryItem records without relations
+  console.log('\n--- First Pass: Creating all InventoryItems ---');
   const filePath = path.join(process.cwd(), 'data', 'inventory.json');
   const jsonData = await fs.readFile(filePath, 'utf-8');
   const inventoryItemsJson: InventoryItemJson[] = JSON.parse(jsonData);
 
-  // 3. First Pass: Create all InventoryItem records without relations
-  console.log('--- First Pass: Creating all InventoryItems ---');
   const createdItemsMap = new Map<string, { id: string }>();
 
   for (const item of inventoryItemsJson) {
@@ -47,10 +77,10 @@ async function main() {
       const createdItem = await prisma.inventoryItem.create({
         data: {
           name: item.name,
-          category: item.category,
+          category: item.category, // Storing name for now, will be replaced by relation later
           qty: item.qty,
-          status: item.status,
-          location: item.location,
+          status: item.status,     // Storing name for now
+          location: item.location, // Storing name for now
           description: item.description || '',
         },
       });
@@ -65,7 +95,7 @@ async function main() {
     }
   }
 
-  // 4. Second Pass: Create Component relations for "Set Komputer" items
+  // 4. Second Pass (Existing Logic): Create Component relations for "Set Komputer" items
   console.log('\n--- Second Pass: Creating Component relations for Sets ---');
   for (const item of inventoryItemsJson) {
     if (item.category === 'Set Komputer' && item.specs) {
