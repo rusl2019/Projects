@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useTransition, useCallback } from "react";
+import { useEffect, useReducer, useTransition, useCallback, useState } from "react";
 import { PlusCircle, Pencil, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -152,6 +152,7 @@ export default function InventoryForm({
 }: InventoryFormProps) {
   const [isPending, startTransition] = useTransition();
   const [state, dispatch] = useReducer(formReducer, { ...initialFormState, itemStatus: statuses[0] || "" });
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string[] }>({}); // State for validation errors
 
   const {
     isEditing,
@@ -205,15 +206,24 @@ export default function InventoryForm({
 
   const resetForm = useCallback(() => {
     dispatch({ type: 'RESET', statuses });
+    setValidationErrors({}); // Clear errors on form reset
     onFormSubmitted();
   }, [onFormSubmitted, statuses]);
 
   useEffect(() => {
     dispatch({ type: 'SET_INITIAL_ITEM', payload: initialItem, statuses });
+    setValidationErrors({}); // Clear errors when initial item changes (e.g., switching from edit to add)
   }, [initialItem, statuses]);
 
   useEffect(() => {
     dispatch({ type: 'SET_FIELD', field: 'showSpecsContainer', payload: itemCategory === "Set Komputer" });
+    if (itemCategory !== "Set Komputer") {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.specs; // Clear specs errors if category changes
+        return newErrors;
+      });
+    }
   }, [itemCategory]);
 
   // REFACTORED: `addSpec` now receives the component object and quantity
@@ -227,7 +237,9 @@ export default function InventoryForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let specs: Specs | null = null;
+    setValidationErrors({}); // Clear previous errors
+
+    let specs: Specs | undefined = undefined; // Use undefined for Zod optional
     if (itemCategory === "Set Komputer") {
       specs = {
         cpu: selectedCpus,
@@ -239,20 +251,54 @@ export default function InventoryForm({
       };
     }
 
-    // The data now includes component IDs in the specs object, which the backend expects
-    const newItemData = { name: itemName, category: itemCategory, qty: itemQty, status: itemStatus, location: itemLocation, description: itemDescription, specs: specs };
+    // Prepare data for server action, including ID if editing
+    const itemDataToSend: Partial<InventoryItem> = {
+      name: itemName,
+      category: itemCategory,
+      qty: itemQty,
+      status: itemStatus,
+      location: itemLocation,
+      description: itemDescription,
+      specs: specs,
+    };
+    if (isEditing && editId) {
+      itemDataToSend.id = editId;
+    }
 
     startTransition(async () => {
-      if (isEditing && editId !== null) {
-        const result = await updateInventory({ ...newItemData, id: editId } as InventoryItem);
-        toast.success("Data berhasil diperbarui!");
+      const result = isEditing && editId
+        ? await updateInventory(itemDataToSend as InventoryItem)
+        : await addInventory(itemDataToSend as Omit<InventoryItem, "id">);
+
+      if (result.success) {
+        toast.success(result.message || "Operasi berhasil!");
+        resetForm();
       } else {
-        const result = await addInventory(newItemData);
-        toast.success("Data baru berhasil ditambahkan!");
+        if (result.errors) {
+          // Flatten Zod errors for easier display
+          const flatErrors: { [key: string]: string[] } = {};
+          if (result.errors._errors && result.errors._errors.length > 0) {
+            flatErrors.general = result.errors._errors; // General form errors
+          }
+          for (const key in result.errors) {
+            if (key !== '_errors') {
+              // Zod's .format() can give nested objects; this extracts error messages.
+              const errorMessages = (result.errors as any)[key]?._errors || [];
+              if (errorMessages.length > 0) {
+                flatErrors[key] = errorMessages;
+              }
+            }
+          }
+          setValidationErrors(flatErrors);
+          toast.error(result.message || "Validasi gagal. Mohon periksa input Anda.");
+        } else {
+          toast.error(result.message || "Terjadi kesalahan yang tidak diketahui.");
+        }
       }
-      resetForm();
     });
   };
+
+  const getFieldError = (fieldName: string) => validationErrors[fieldName]?.[0];
 
   return (
     <div className="lg:col-span-1">
@@ -269,7 +315,20 @@ export default function InventoryForm({
 
             <div>
               <Label htmlFor="item-name" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Nama Barang / Label Set</Label>
-              <Input type="text" id="item-name" required placeholder="Contoh: PC-RAKIT-01" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm text-slate-700 font-medium" value={itemName} onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'itemName', payload: e.target.value })} disabled={isPending} />
+              <Input
+                type="text"
+                id="item-name"
+                required
+                placeholder="Contoh: PC-RAKIT-01"
+                className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm text-slate-700 font-medium"
+                value={itemName}
+                onChange={(e) => {
+                  dispatch({ type: 'SET_FIELD', field: 'itemName', payload: e.target.value });
+                  setValidationErrors(prev => ({ ...prev, name: undefined })); // Clear error on change
+                }}
+                disabled={isPending}
+              />
+              {getFieldError('name') && <p className="text-red-500 text-xs mt-1">{getFieldError('name')}</p>}
             </div>
 
             <div>
@@ -277,10 +336,18 @@ export default function InventoryForm({
                 <Label htmlFor="item-category" className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</Label>
                 <Button variant="ghost" size="sm" onClick={onAddCategoryClick} className="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1 h-auto px-1 py-0.5" disabled={isPending}><Plus className="h-4 w-4 mr-1" />Tambah</Button>
               </div>
-              <Select value={itemCategory} onValueChange={(value) => dispatch({ type: 'SET_FIELD', field: 'itemCategory', payload: value })} disabled={isPending}>
+              <Select
+                value={itemCategory}
+                onValueChange={(value) => {
+                  dispatch({ type: 'SET_FIELD', field: 'itemCategory', payload: value });
+                  setValidationErrors(prev => ({ ...prev, category: undefined })); // Clear error on change
+                }}
+                disabled={isPending}
+              >
                 <SelectTrigger id="item-category" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm"><SelectValue placeholder="-- Pilih Kategori --" /></SelectTrigger>
                 <SelectContent>{categories.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
               </Select>
+              {getFieldError('category') && <p className="text-red-500 text-xs mt-1">{getFieldError('category')}</p>}
             </div>
 
             <div id="specs-container" className={`p-4 bg-slate-100 rounded-xl border border-slate-300 space-y-3 shadow-sm ${showSpecsContainer ? "" : "hidden"}`}>
@@ -293,22 +360,48 @@ export default function InventoryForm({
                 <SpecSelector specTypeLabel="PSU" internalSpecType="psu" options={psuOptions} selectedItems={selectedPsus} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
                 <SpecSelector specTypeLabel="Casing" internalSpecType="case" options={caseOptions} selectedItems={selectedCases} onAddSpec={addSpec} onRemoveSpec={removeSpec} isPending={isPending} />
               </div>
+              {(getFieldError('specs') || getFieldError('specs.cpu') || getFieldError('specs.ram') || getFieldError('specs.gpu') || getFieldError('specs.storage') || getFieldError('specs.psu') || getFieldError('specs.case')) && (
+                <p className="text-red-500 text-xs mt-1">
+                  {getFieldError('specs') || getFieldError('specs.cpu') || getFieldError('specs.ram') || getFieldError('specs.gpu') || getFieldError('specs.storage') || getFieldError('specs.psu') || getFieldError('specs.case')}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="item-qty" className="block text-xs font-bold text-slate-500 mb-1 uppercase">Stok Unit</Label>
-                <Input type="number" id="item-qty" min="1" required className="w-full p-2.5 rounded-lg border border-slate-300 text-sm" value={itemQty} onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'itemQty', payload: Number(e.target.value) })} disabled={isPending} />
+                <Input
+                type="number"
+                id="item-qty"
+                min="1"
+                required
+                className="w-full p-2.5 rounded-lg border border-slate-300 text-sm"
+                value={itemQty}
+                onChange={(e) => {
+                  dispatch({ type: 'SET_FIELD', field: 'itemQty', payload: Number(e.target.value) });
+                  setValidationErrors(prev => ({ ...prev, qty: undefined })); // Clear error on change
+                }}
+                disabled={isPending}
+              />
+              {getFieldError('qty') && <p className="text-red-500 text-xs mt-1">{getFieldError('qty')}</p>}
               </div>
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <Label htmlFor="item-status" className="block text-xs font-bold text-slate-500 uppercase">Kondisi</Label>
                   <Button variant="ghost" size="sm" onClick={onAddStatusClick} className="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1 h-auto px-1 py-0.5" disabled={isPending}><Plus className="h-4 w-4 mr-1" />Tambah</Button>
                 </div>
-                <Select value={itemStatus} onValueChange={(value) => dispatch({ type: 'SET_FIELD', field: 'itemStatus', payload: value })} disabled={isPending}>
+                <Select
+                  value={itemStatus}
+                  onValueChange={(value) => {
+                    dispatch({ type: 'SET_FIELD', field: 'itemStatus', payload: value });
+                    setValidationErrors(prev => ({ ...prev, status: undefined })); // Clear error on change
+                  }}
+                  disabled={isPending}
+                >
                   <SelectTrigger id="item-status" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm"><SelectValue placeholder="-- Pilih Kondisi --" /></SelectTrigger>
                   <SelectContent>{statuses.map((status) => (<SelectItem key={status} value={status}>{status}</SelectItem>))}</SelectContent>
                 </Select>
+                {getFieldError('status') && <p className="text-red-500 text-xs mt-1">{getFieldError('status')}</p>}
               </div>
             </div>
 
@@ -317,15 +410,34 @@ export default function InventoryForm({
                 <Label htmlFor="item-location" className="block text-xs font-bold text-slate-500 uppercase">Lokasi</Label>
                 <Button variant="ghost" size="sm" onClick={onAddLocationClick} className="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1 h-auto px-1 py-0.5" disabled={isPending}><Plus className="h-4 w-4 mr-1" />Tambah</Button>
               </div>
-              <Select value={itemLocation} onValueChange={(value) => dispatch({ type: 'SET_FIELD', field: 'itemLocation', payload: value })} disabled={isPending}>
+              <Select
+                value={itemLocation}
+                onValueChange={(value) => {
+                  dispatch({ type: 'SET_FIELD', field: 'itemLocation', payload: value });
+                  setValidationErrors(prev => ({ ...prev, location: undefined })); // Clear error on change
+                }}
+                disabled={isPending}
+              >
                 <SelectTrigger id="item-location" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm"><SelectValue placeholder="-- Pilih Lokasi --" /></SelectTrigger>
                 <SelectContent>{locations.map((loc) => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent>
               </Select>
+              {getFieldError('location') && <p className="text-red-500 text-xs mt-1">{getFieldError('location')}</p>}
             </div>
 
             <div>
               <Label htmlFor="item-description" className="block text-xs font-bold text-slate-500 mb-1 uppercase">Deskripsi / Spesifikasi</Label>
-              <Textarea id="item-description" placeholder="Masukkan deskripsi atau spesifikasi item (misal: Kondisi fisik, aksesoris, dll.)" className="w-full p-2.5 rounded-lg border border-slate-300 text-sm min-h-[80px]" value={itemDescription} onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'itemDescription', payload: e.target.value })} disabled={isPending} />
+              <Textarea
+                id="item-description"
+                placeholder="Masukkan deskripsi atau spesifikasi item (misal: Kondisi fisik, aksesoris, dll.)"
+                className="w-full p-2.5 rounded-lg border border-slate-300 text-sm min-h-[80px]"
+                value={itemDescription}
+                onChange={(e) => {
+                  dispatch({ type: 'SET_FIELD', field: 'itemDescription', payload: e.target.value });
+                  setValidationErrors(prev => ({ ...prev, description: undefined })); // Clear error on change
+                }}
+                disabled={isPending}
+              />
+              {getFieldError('description') && <p className="text-red-500 text-xs mt-1">{getFieldError('description')}</p>}
             </div>
 
             <div className="flex flex-col gap-2 pt-2">
