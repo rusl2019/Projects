@@ -53,5 +53,6 @@ docker compose up -d
 docker ps -a --format "{{.ID}}" | xargs -r docker stop
 docker ps -a --format "{{.ID}}" | xargs -r docker rm
 docker volume ls -q | xargs -r docker volume rm
+docker rmi 02_inventarisasi_lab_komputer-node:latest
 docker network prune
 ```
