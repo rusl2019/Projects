@@ -1,24 +1,28 @@
 "use client";
 
-import Link from "next/link"; // Import Link
 import { useEffect, useState, useTransition, useCallback } from "react";
-import { HardDrive } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { addCategory, addStatus, addLocation, deleteInventory } from "@/lib/actions";
-import { InventoryItem } from "@/lib/inventory-data";
+import { addCategory, addStatus, addLocation, deleteInventory, importInventory } from "@/lib/actions";
+import { InventoryItem, Specs } from "@/lib/inventory-data";
 import InventoryForm from "@/components/InventoryForm";
 import InventoryTable from "@/components/InventoryTable";
 import AddOptionModal from "@/components/AddOptionModal";
+import ImportExcelModal from "@/components/ImportExcelModal"; // Import the modal
 import { useInventoryStore } from "@/lib/store";
 import { toast } from "sonner";
-import PaginationControls from "@/components/PaginationControls"; // Import PaginationControls
+import PaginationControls from "@/components/PaginationControls";
+import Navbar from "@/components/Navbar";
+import { useRouter } from "next/navigation";
 
 interface OptionData {
   id: string;
   name: string;
 }
+
+
 
 interface InventoryPageProps {
   initialInventory: InventoryItem[];
@@ -48,6 +52,8 @@ export default function InventoryPage({
 
   const [isPending, startTransition] = useTransition();
   const [mutatingItemId, setMutatingItemId] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false); // State for import modal
+  const router = useRouter();
 
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showAddStatusModal, setShowAddStatusModal] = useState(false);
@@ -55,7 +61,6 @@ export default function InventoryPage({
 
   const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
 
-  // Initialize store with server-side data
   useEffect(() => {
     initializeData({
       inventory: initialInventory,
@@ -105,35 +110,72 @@ export default function InventoryPage({
     dl.click();
   };
 
+  const handleExportExcel = () => {
+    const fullInventory = useInventoryStore.getState().inventory;
+    
+    const formatSpecs = (specs: Specs | null): string => {
+        if (!specs) return '';
+        return Object.entries(specs)
+            .filter(([, components]) => components.length > 0)
+            .map(([key, components]) => {
+                const componentList = components.map(c => `${c.qty}x ${c.name}`).join(', ');
+                return `${key.toUpperCase()}: ${componentList}`;
+            })
+            .join('; ');
+    };
+
+    const dataToExport = fullInventory.map(item => ({
+      'ID': item.id,
+      'Nama Item': item.name,
+      'Kategori': item.categoryName,
+      'Stok': item.qty,
+      'Kondisi': item.statusName,
+      'Lokasi': item.locationName,
+      'Spesifikasi': formatSpecs(item.specs),
+      'Deskripsi': item.description?.replace(/<[^>]*>?/gm, ''), 
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Inventaris");
+    XLSX.writeFile(workbook, `inventaris_export_${new Date().getTime()}.xlsx`);
+  };
+
+  // Handler for the import process
+  const handleImport = async (data: any[]) => {
+    startTransition(async () => {
+      const result = await importInventory(data);
+      if (result.success) {
+        let toastMessage = result.message || "Impor selesai!";
+        if (result.data?.errors && result.data.errors.length > 0) {
+          // Show a more detailed toast if there are errors
+          toast.warning(toastMessage, {
+            description: `Silakan periksa ${result.data.errors.length} item yang gagal.`,
+            duration: 8000,
+          });
+          console.error("Import errors:", result.data.errors);
+        } else {
+          toast.success(toastMessage);
+        }
+        router.refresh(); // Re-fetch server data
+      } else {
+        toast.error(result.message || "Gagal melakukan impor.");
+      }
+    });
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
-      <nav className="bg-blue-900 text-white p-4 shadow-lg sticky top-0 z-40">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold flex items-center gap-2">
-              <HardDrive className="h-6 w-6 text-blue-300" />
-              LabInventory Pro{" "}
-              <span className="text-[10px] bg-blue-700 px-2 py-0.5 rounded-full ml-2 font-normal tracking-wide italic">
-                v4.2 Zustand
-              </span>
-            </h1>
-            <div className="hidden md:flex items-center gap-4 text-sm">
-              <Link href="/inventory" className="text-blue-200 hover:text-white transition-colors">Inventaris</Link>
-              <Link href="/settings" className="text-blue-200 hover:text-white transition-colors">Pengaturan</Link>
-            </div>
-          </div>
-          <div id="stats" className="text-sm font-medium flex gap-4">
-            <div className="hidden md:block">
-              Total Item:{" "}
-              <span id="total-count" className="bg-blue-950 px-2 py-1 rounded">
-                {/* Display the total number of non-paginated, non-filtered items for context */}
-                {/* inventory here refers to the full, non-paginated list from the store */}
-                {useInventoryStore.getState().inventory.length} 
-              </span>
-            </div>
+      <Navbar>
+        <div id="stats" className="text-sm font-medium flex gap-4">
+          <div className="hidden md:block">
+            Total Item:{" "}
+            <span id="total-count" className="bg-blue-950 px-2 py-1 rounded">
+              {useInventoryStore.getState().inventory.length}
+            </span>
           </div>
         </div>
-      </nav>
+      </Navbar>
 
       <main className="container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -177,6 +219,24 @@ export default function InventoryPage({
               </div>
               <div className="flex gap-2">
                 <Button
+                  onClick={() => setShowImportModal(true)}
+                  variant="outline"
+                  size="sm"
+                  className="text-[10px] bg-white border-blue-200 text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg font-bold uppercase shadow-sm h-auto"
+                  disabled={isPending}
+                >
+                  Import Excel
+                </Button>
+                <Button
+                  onClick={handleExportExcel}
+                  variant="outline"
+                  size="sm"
+                  className="text-[10px] bg-white border-green-200 text-green-700 hover:bg-green-50 px-3 py-2 rounded-lg font-bold uppercase shadow-sm h-auto"
+                  disabled={isPending}
+                >
+                  Export Excel
+                </Button>
+                <Button
                   id="export-btn"
                   onClick={handleExport}
                   variant="outline"
@@ -200,7 +260,12 @@ export default function InventoryPage({
         </div>
       </main>
 
-      {/* Modals for adding dynamic options */}
+      {/* Modals */}
+      <ImportExcelModal 
+        isOpen={showImportModal}
+        onOpenChange={setShowImportModal}
+        onImport={handleImport}
+      />
       <AddOptionModal
         isOpen={showAddCategoryModal}
         onOpenChange={setShowAddCategoryModal}
@@ -209,7 +274,6 @@ export default function InventoryPage({
         placeholder="Nama Kategori"
         onAdd={addCategory}
       />
-
       <AddOptionModal
         isOpen={showAddStatusModal}
         onOpenChange={setShowAddStatusModal}
@@ -218,7 +282,6 @@ export default function InventoryPage({
         placeholder="Nama Kondisi"
         onAdd={addStatus}
       />
-
       <AddOptionModal
         isOpen={showAddLocationModal}
         onOpenChange={setShowAddLocationModal}

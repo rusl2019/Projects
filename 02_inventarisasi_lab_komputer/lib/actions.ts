@@ -145,6 +145,107 @@ export async function getInventoryItemById(id: string): Promise<InventoryItem | 
   return prismaToAppItem(prismaItem);
 }
 
+export async function importInventory(data: any[]): Promise<ActionResponse<{ added: number; updated: number; errors: string[] }>> {
+  // 1. Create lookup maps for performance
+  const [categories, statuses, locations] = await Promise.all([
+    prisma.category.findMany(),
+    prisma.status.findMany(),
+    prisma.location.findMany(),
+  ]);
+  const categoryMap = new Map(categories.map(c => [c.name.toLowerCase(), c.id]));
+  const statusMap = new Map(statuses.map(s => [s.name.toLowerCase(), s.id]));
+  const locationMap = new Map(locations.map(l => [l.name.toLowerCase(), l.id]));
+
+  let added = 0;
+  let updated = 0;
+  const errors: string[] = [];
+
+  // 2. Process each row
+  for (const [index, row] of data.entries()) {
+    const rowNum = index + 2; // Excel rows are 1-based, plus header
+
+    try {
+      const name = row['Nama Item'];
+      const categoryName = row['Kategori'];
+      const statusName = row['Kondisi'];
+      const locationName = row['Lokasi'];
+      const qty = row['Stok'];
+      
+      // Basic validation
+      if (!name) {
+        errors.push(`Baris ${rowNum}: 'Nama Item' tidak boleh kosong.`);
+        continue;
+      }
+
+      // Map names to IDs
+      const categoryId = categoryMap.get(categoryName?.toLowerCase());
+      const statusId = statusMap.get(statusName?.toLowerCase());
+      const locationId = locationMap.get(locationName?.toLowerCase());
+      
+      if (!categoryId) {
+        errors.push(`Baris ${rowNum}: Kategori '${categoryName}' tidak ditemukan.`);
+        continue;
+      }
+      if (!statusId) {
+        errors.push(`Baris ${rowNum}: Kondisi '${statusName}' tidak ditemukan.`);
+        continue;
+      }
+      if (!locationId) {
+        errors.push(`Baris ${rowNum}: Lokasi '${locationName}' tidak ditemukan.`);
+        continue;
+      }
+      
+      const itemData = {
+        name: String(name),
+        categoryId,
+        statusId,
+        locationId,
+        qty: Number(qty) || 0,
+        description: row['Deskripsi'] ? String(row['Deskripsi']) : '',
+        specs: null // Specs import is too complex for this version, handled separately.
+      };
+
+      // Zod validation
+      const parsed = InventoryItemSchema.safeParse(itemData);
+      if (!parsed.success) {
+        const issues = Object.values(formatErrors(parsed.error.format())).flat().join(', ');
+        errors.push(`Baris ${rowNum} (${name}): Validasi gagal - ${issues}`);
+        continue;
+      }
+      
+      // 3. Upsert to DB
+      const result = await prisma.inventoryItem.upsert({
+        where: { name: itemData.name },
+        update: parsed.data,
+        create: parsed.data,
+      });
+
+      // Check if it was created or updated
+      if (result.createdAt.getTime() === result.updatedAt.getTime()) {
+        added++;
+      } else {
+        updated++;
+      }
+
+    } catch (error: any) {
+      errors.push(`Baris ${rowNum}: Terjadi kesalahan - ${error.message}`);
+    }
+  }
+
+  revalidatePath("/inventory");
+
+  let message = `Impor selesai! Ditambahkan: ${added}, Diperbarui: ${updated}.`;
+  if (errors.length > 0) {
+    message += ` Gagal: ${errors.length} item.`;
+  }
+
+  return {
+    success: true,
+    data: { added, updated, errors },
+    message,
+  };
+}
+
 export async function addInventory(itemData: Omit<InventoryItem, "id" | "categoryName" | "statusName" | "locationName">): Promise<ActionResponse<InventoryItem>> {
   const parsed = InventoryItemSchema.safeParse(itemData);
 

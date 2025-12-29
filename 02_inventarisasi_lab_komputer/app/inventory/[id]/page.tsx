@@ -1,10 +1,10 @@
 // app/inventory/[id]/page.tsx
 import { getInventoryItemById } from "@/lib/actions";
-import { HardDrive } from "lucide-react";
 import Link from "next/link"; // Import Link for navigation
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sanitizeHtml } from '@/lib/safe-html'; // Import fungsi sanitizeHtml
+import Navbar from "@/components/Navbar";
 
 interface ItemDetailPageProps {
   params: Promise<{ id: string }>;
@@ -37,14 +37,7 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      <nav className="bg-blue-900 text-white p-4 shadow-lg sticky top-0 z-40">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <HardDrive className="h-6 w-6 text-blue-300" />
-            Detail Item Inventaris
-          </h1>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container mx-auto p-4 md:p-8">
         <Card>
