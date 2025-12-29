@@ -55,7 +55,7 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm font-semibold text-slate-700">Kategori:</p>
-              <p className="text-slate-600">{item.category}</p>
+              <p className="text-slate-600">{item.categoryName}</p>
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-700">Stok:</p>
@@ -63,13 +63,13 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-700">Kondisi:</p>
-              <p className="text-slate-600">{item.status}</p>
+              <p className="text-slate-600">{item.statusName}</p>
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-700">Lokasi:</p>
-              <p className="text-slate-600">{item.location}</p>
+              <p className="text-slate-600">{item.locationName}</p>
             </div>
-            {item.specs && item.category === 'Set Komputer' && (
+            {item.specs && item.categoryName === 'Set Komputer' && (
               <div>
                 <p className="text-sm font-semibold text-slate-700">Spesifikasi Komponen:</p>
                 <ul className="list-disc list-inside text-slate-600">

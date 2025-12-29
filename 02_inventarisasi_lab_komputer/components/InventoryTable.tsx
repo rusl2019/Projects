@@ -1,12 +1,12 @@
-"use client";
-
 import Link from "next/link";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { InventoryItem } from "@/lib/inventory-data";
 import { useInventoryStore } from "@/lib/store"; // Import the Zustand store
+
+type SortableInventoryColumns = 'name' | 'categoryName' | 'qty' | 'statusName' | 'locationName';
 
 interface InventoryTableProps {
   itemToEdit: InventoryItem | null;
@@ -23,7 +23,31 @@ export default function InventoryTable({
   onDeleteItem,
   mutatingItemId,
 }: InventoryTableProps) {
-  const { filteredInventory } = useInventoryStore(); // Get filtered data from the store
+  const { filteredInventory, sortColumn, sortDirection, setSort } = useInventoryStore(); // Get filtered and sorted data, and sort state from the store
+
+  const handleSort = (column: SortableInventoryColumns) => {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSort(column, 'desc');
+      } else if (sortDirection === 'desc') {
+        setSort(column, null); // Remove sort if clicked twice on 'desc'
+      } else {
+        setSort(column, 'asc'); // Default to ascending if no sort
+      }
+    } else {
+      setSort(column, 'asc'); // Default to ascending when changing column
+    }
+  };
+
+  const getSortIcon = (column: SortableInventoryColumns) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="ml-2 h-4 w-4 text-slate-400 flex-shrink-0" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="ml-2 h-4 w-4 flex-shrink-0" />;
+    }
+    return <ArrowDown className="ml-2 h-4 w-4 flex-shrink-0" />;
+  };
 
   return (
     <div className="lg:col-span-2 space-y-4">
@@ -33,9 +57,52 @@ export default function InventoryTable({
             <Table className="w-full text-left">
               <TableHeader>
                 <TableRow className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
-                  <TableHead className="px-6 py-4">Item & Rincian</TableHead>
-                  <TableHead className="px-6 py-4">Kategori</TableHead>
-                  <TableHead className="px-6 py-4 text-center">Stok</TableHead>
+                  <TableHead className="px-6 py-4">
+                    <button
+                      className="flex items-center justify-between w-full cursor-pointer transition-colors hover:bg-slate-100/50 -mx-3 px-3 rounded"
+                      onClick={() => handleSort('name')}
+                    >
+                      Item & Rincian
+                      {getSortIcon('name')}
+                    </button>
+                  </TableHead>
+                  <TableHead className="px-6 py-4">
+                    <button
+                      className="flex items-center justify-between w-full cursor-pointer transition-colors hover:bg-slate-100/50 -mx-3 px-3 rounded"
+                      onClick={() => handleSort('categoryName')}
+                    >
+                      Kategori
+                      {getSortIcon('categoryName')}
+                    </button>
+                  </TableHead>
+                  <TableHead className="px-6 py-4">
+                    <button
+                      className="flex items-center justify-between w-full cursor-pointer transition-colors hover:bg-slate-100/50 -mx-3 px-3 rounded"
+                      onClick={() => handleSort('qty')}
+                    >
+                      Stok
+                      {getSortIcon('qty')}
+                    </button>
+                  </TableHead>
+                  {/* Tambahkan kolom Sortable untuk Status dan Lokasi jika diinginkan */}
+                  {/* <TableHead className="px-6 py-4">
+                    <button
+                      className="flex items-center justify-between w-full cursor-pointer transition-colors hover:bg-slate-100/50 -mx-3 px-3 rounded"
+                      onClick={() => handleSort('statusName')}
+                    >
+                      Kondisi
+                      {getSortIcon('statusName')}
+                    </button>
+                  </TableHead>
+                  <TableHead className="px-6 py-4">
+                    <button
+                      className="flex items-center justify-between w-full cursor-pointer transition-colors hover:bg-slate-100/50 -mx-3 px-3 rounded"
+                      onClick={() => handleSort('locationName')}
+                    >
+                      Lokasi
+                      {getSortIcon('locationName')}
+                    </button>
+                  </TableHead> */}
                   <TableHead className="px-6 py-4 text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -49,9 +116,9 @@ export default function InventoryTable({
                 ) : (
                   filteredInventory.map((item) => {
                     const statusClass =
-                      item.status === "Bagus"
+                      item.statusName === "Bagus"
                         ? "text-emerald-500 bg-emerald-50"
-                        : item.status === "Rusak Ringan"
+                        : item.statusName === "Rusak Ringan"
                         ? "text-amber-500 bg-amber-50"
                         : "text-rose-500 bg-rose-50";
 
@@ -59,7 +126,7 @@ export default function InventoryTable({
                     const isMutating = isPending && mutatingItemId === item.id;
 
                     let specsHtml = null;
-                    if (item.category === "Set Komputer" && item.specs) {
+                    if (item.categoryName === "Set Komputer" && item.specs) {
                       const s = item.specs;
                       const line = (lbl: string, components: { name: string; qty: number }[]) =>
                         components && components.length > 0 ? (
@@ -96,17 +163,17 @@ export default function InventoryTable({
                               <span
                                 className={`text-[9px] px-2 py-0.5 rounded font-black uppercase ${statusClass}`}
                               >
-                                {item.status}
+                                {item.statusName}
                               </span>
                               <span className="text-[10px] text-slate-400 font-medium">
-                                Loc: {item.location}
+                                Loc: {item.locationName}
                               </span>
                             </div>
                             {specsHtml}
                           </div>
                         </TableCell>
                         <TableCell className="px-6 py-5 align-top text-xs font-bold text-slate-400 uppercase">
-                          {item.category}
+                          {item.categoryName}
                         </TableCell>
                         <TableCell className="px-6 py-5 align-top text-center">
                           <span className="font-mono font-bold text-blue-800 text-sm bg-blue-50 px-2 py-1 rounded">

@@ -13,15 +13,20 @@ import { InventoryItem, Specs, ComponentSpec } from "@/lib/inventory-data";
 import { toast } from "sonner";
 import SpecSelector from "./SpecSelector";
 
+interface OptionData {
+  id: string;
+  name: string;
+}
+
 // The form's state now manages the full ComponentSpec, including the optional id
 interface FormState {
   isEditing: boolean;
   editId: string | null;
   itemName: string;
-  itemCategory: string;
+  itemCategory: string; // Now stores category ID
   itemQty: number;
-  itemStatus: string;
-  itemLocation: string;
+  itemStatus: string;   // Now stores status ID
+  itemLocation: string; // Now stores location ID
   itemDescription: string;
   selectedCpus: ComponentSpec[];
   selectedMotherboards: ComponentSpec[];
@@ -37,17 +42,17 @@ type FormAction =
   | { type: 'SET_FIELD'; field: keyof FormState; payload: any }
   | { type: 'ADD_SPEC'; specType: keyof Specs; payload: ComponentSpec } // Payload is now the full ComponentSpec
   | { type: 'REMOVE_SPEC'; specType: keyof Specs; index: number }
-  | { type: 'SET_INITIAL_ITEM'; payload: InventoryItem | null; statuses: string[] }
-  | { type: 'RESET'; statuses: string[] };
+  | { type: 'SET_INITIAL_ITEM'; payload: InventoryItem | null; initialOptions: { categories: OptionData[]; statuses: OptionData[]; locations: OptionData[]; } }
+  | { type: 'RESET'; initialOptions: { categories: OptionData[]; statuses: OptionData[]; locations: OptionData[]; } };
 
 const initialFormState: FormState = {
   isEditing: false,
   editId: null,
   itemName: "",
-  itemCategory: "",
+  itemCategory: "", // Default to empty
   itemQty: 1,
-  itemStatus: "",
-  itemLocation: "",
+  itemStatus: "",   // Default to empty
+  itemLocation: "", // Default to empty
   itemDescription: "",
   selectedCpus: [],
   selectedMotherboards: [],
@@ -101,16 +106,22 @@ function formReducer(state: FormState, action: FormAction): FormState {
     }
     case 'SET_INITIAL_ITEM': {
       const item = action.payload;
+      const { statuses, categories, locations } = action.initialOptions;
       if (item) {
+        // Ensure that the stored IDs are valid and exist in the current options lists
+        const validCategory = categories.find(c => c.id === item.categoryId);
+        const validStatus = statuses.find(s => s.id === item.statusId);
+        const validLocation = locations.find(l => l.id === item.locationId);
+
         return {
           ...state,
           isEditing: true,
           editId: item.id,
           itemName: item.name,
-          itemCategory: item.category,
+          itemCategory: validCategory ? item.categoryId : (categories[0]?.id || ""),
           itemQty: item.qty,
-          itemStatus: item.status,
-          itemLocation: item.location,
+          itemStatus: validStatus ? item.statusId : (statuses[0]?.id || ""),
+          itemLocation: validLocation ? item.locationId : (locations[0]?.id || ""),
           itemDescription: item.description || "",
           selectedCpus: item.specs?.cpu || [],
           selectedMotherboards: item.specs?.motherboard || [],
@@ -119,14 +130,26 @@ function formReducer(state: FormState, action: FormAction): FormState {
           selectedStorages: item.specs?.storage || [],
           selectedPsus: item.specs?.psu || [],
           selectedCases: item.specs?.case || [],
-          showSpecsContainer: item.category === "Set Komputer",
+          showSpecsContainer: validCategory?.name === "Set Komputer",
         };
       } else {
-        return { ...initialFormState, itemStatus: action.statuses[0] || "" };
+        return {
+          ...initialFormState,
+          itemCategory: categories[0]?.id || "",
+          itemStatus: statuses[0]?.id || "",
+          itemLocation: locations[0]?.id || ""
+        };
       }
     }
-    case 'RESET':
-      return { ...initialFormState, itemStatus: action.statuses[0] || "" };
+    case 'RESET': {
+      const { statuses, categories, locations } = action.initialOptions;
+      return {
+        ...initialFormState,
+        itemCategory: categories[0]?.id || "",
+        itemStatus: statuses[0]?.id || "",
+        itemLocation: locations[0]?.id || ""
+      };
+    }
     default:
       return state;
   }
@@ -134,9 +157,9 @@ function formReducer(state: FormState, action: FormAction): FormState {
 
 interface InventoryFormProps {
   initialItem?: InventoryItem | null;
-  categories: string[];
-  statuses: string[];
-  locations: string[];
+  categories: OptionData[];
+  statuses: OptionData[];
+  locations: OptionData[];
   allInventoryItems: InventoryItem[];
   onFormSubmitted: () => void;
   onAddCategoryClick: () => void;
@@ -156,17 +179,22 @@ export default function InventoryForm({
   onAddLocationClick,
 }: InventoryFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [state, dispatch] = useReducer(formReducer, { ...initialFormState, itemStatus: statuses[0] || "" });
+  const [state, dispatch] = useReducer(formReducer, {
+    ...initialFormState,
+    itemCategory: categories[0]?.id || "",
+    itemStatus: statuses[0]?.id || "",
+    itemLocation: locations[0]?.id || ""
+  });
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string[] }>({}); // State for validation errors
 
   const {
     isEditing,
     editId,
     itemName,
-    itemCategory,
+    itemCategory, // This is now ID
     itemQty,
-    itemStatus,
-    itemLocation,
+    itemStatus,   // This is now ID
+    itemLocation, // This is now ID
     itemDescription,
     selectedCpus,
     selectedMotherboards,
@@ -178,7 +206,11 @@ export default function InventoryForm({
     showSpecsContainer,
   } = state;
 
-  // REFACTORED: This function now returns options as { id, name } objects
+  // Find the category object for the currently selected itemCategory ID
+  const currentCategory = categories.find(cat => cat.id === itemCategory);
+  const isSetKomputerCategorySelected = currentCategory?.name === "Set Komputer";
+
+
   const updateSpecSelectors = useCallback(() => {
     const componentOptions: { [key: string]: { id: string; name: string }[] } = {
       cpuOptions: [],
@@ -201,7 +233,8 @@ export default function InventoryForm({
     };
 
     allInventoryItems.forEach((item) => {
-      const optionKey = categoryMap[item.category];
+      // Use item.categoryName to map to spec options
+      const optionKey = categoryMap[item.categoryName];
       if (optionKey) {
         componentOptions[optionKey].push({ id: item.id, name: item.name });
       }
@@ -213,26 +246,33 @@ export default function InventoryForm({
   const { cpuOptions, motherboardOptions, ramOptions, gpuOptions, storageOptions, psuOptions, caseOptions } = updateSpecSelectors();
 
   const resetForm = useCallback(() => {
-    dispatch({ type: 'RESET', statuses });
+    dispatch({
+      type: 'RESET',
+      initialOptions: { categories, statuses, locations }
+    });
     setValidationErrors({}); // Clear errors on form reset
     onFormSubmitted();
-  }, [onFormSubmitted, statuses]);
+  }, [onFormSubmitted, categories, statuses, locations]); // Add dependencies
 
   useEffect(() => {
-    dispatch({ type: 'SET_INITIAL_ITEM', payload: initialItem, statuses });
+    dispatch({
+      type: 'SET_INITIAL_ITEM',
+      payload: initialItem,
+      initialOptions: { categories, statuses, locations }
+    });
     setValidationErrors({}); // Clear errors when initial item changes (e.g., switching from edit to add)
-  }, [initialItem, statuses]);
+  }, [initialItem, categories, statuses, locations]); // Add dependencies
 
   useEffect(() => {
-    dispatch({ type: 'SET_FIELD', field: 'showSpecsContainer', payload: itemCategory === "Set Komputer" });
-    if (itemCategory !== "Set Komputer") {
+    dispatch({ type: 'SET_FIELD', field: 'showSpecsContainer', payload: isSetKomputerCategorySelected });
+    if (!isSetKomputerCategorySelected) {
       setValidationErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors.specs; // Clear specs errors if category changes
         return newErrors;
       });
     }
-  }, [itemCategory]);
+  }, [isSetKomputerCategorySelected]);
 
   // REFACTORED: `addSpec` now receives the component object and quantity
   const addSpec = (specType: keyof Specs, spec: { id: string; name: string }, specQty: number) => {
@@ -248,7 +288,7 @@ export default function InventoryForm({
     setValidationErrors({}); // Clear previous errors
 
     let specs: Specs | undefined = undefined; // Use undefined for Zod optional
-    if (itemCategory === "Set Komputer") {
+    if (isSetKomputerCategorySelected) {
       specs = {
         cpu: selectedCpus,
         motherboard: selectedMotherboards,
@@ -263,10 +303,10 @@ export default function InventoryForm({
     // Prepare data for server action, including ID if editing
     const itemDataToSend: Partial<InventoryItem> = {
       name: itemName,
-      category: itemCategory,
+      categoryId: itemCategory, // Use ID
       qty: itemQty,
-      status: itemStatus,
-      location: itemLocation,
+      statusId: itemStatus,     // Use ID
+      locationId: itemLocation, // Use ID
       description: itemDescription,
       specs: specs,
     };
@@ -277,7 +317,8 @@ export default function InventoryForm({
     startTransition(async () => {
       const result = isEditing && editId
         ? await updateInventory(itemDataToSend as InventoryItem)
-        : await addInventory(itemDataToSend as Omit<InventoryItem, "id">);
+        : await addInventory(itemDataToSend as Omit<InventoryItem, "id" | "categoryName" | "statusName" | "locationName">); // Adjust Omit for new InventoryItem structure
+
 
       if (result.success) {
         toast.success(result.message || "Operasi berhasil!");
@@ -286,17 +327,14 @@ export default function InventoryForm({
         if (result.errors) {
           // Flatten Zod errors for easier display
           const flatErrors: { [key: string]: string[] } = {};
-          if (result.errors._errors && result.errors._errors.length > 0) {
-            flatErrors.general = result.errors._errors; // General form errors
+          if (result.errors.general && result.errors.general.length > 0) { // Check for general errors
+            flatErrors.general = result.errors.general;
           }
+          // Iterate over all keys returned by formatErrors
           for (const key in result.errors) {
-            if (key !== '_errors') {
-              // Zod's .format() can give nested objects; this extracts error messages.
-              const errorMessages = (result.errors as any)[key]?._errors || [];
-              if (errorMessages.length > 0) {
-                flatErrors[key] = errorMessages;
+              if (result.errors[key] && Array.isArray(result.errors[key]) && result.errors[key].length > 0) {
+                  flatErrors[key] = result.errors[key];
               }
-            }
           }
           setValidationErrors(flatErrors);
           toast.error(result.message || "Validasi gagal. Mohon periksa input Anda.");
@@ -346,17 +384,25 @@ export default function InventoryForm({
                 <Button variant="ghost" size="sm" onClick={onAddCategoryClick} className="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1 h-auto px-1 py-0.5" disabled={isPending}><Plus className="h-4 w-4 mr-1" />Tambah</Button>
               </div>
               <Select
-                value={itemCategory}
+                value={itemCategory} // Use ID as value
                 onValueChange={(value) => {
                   dispatch({ type: 'SET_FIELD', field: 'itemCategory', payload: value });
-                  setValidationErrors(prev => ({ ...prev, category: undefined })); // Clear error on change
+                  setValidationErrors(prev => ({ ...prev, categoryId: undefined })); // Clear error on change
                 }}
                 disabled={isPending}
               >
-                <SelectTrigger id="item-category" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm"><SelectValue placeholder="-- Pilih Kategori --" /></SelectTrigger>
-                <SelectContent>{categories.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                <SelectTrigger id="item-category" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                  <SelectValue placeholder="-- Pilih Kategori --" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}> {/* Use ID for value, name for display */}
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
-              {getFieldError('category') && <p className="text-red-500 text-xs mt-1">{getFieldError('category')}</p>}
+              {getFieldError('categoryId') && <p className="text-red-500 text-xs mt-1">{getFieldError('categoryId')}</p>}
             </div>
 
             <div id="specs-container" className={`p-4 bg-slate-100 rounded-xl border border-slate-300 space-y-3 shadow-sm ${showSpecsContainer ? "" : "hidden"}`}>
@@ -401,17 +447,25 @@ export default function InventoryForm({
                   <Button variant="ghost" size="sm" onClick={onAddStatusClick} className="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1 h-auto px-1 py-0.5" disabled={isPending}><Plus className="h-4 w-4 mr-1" />Tambah</Button>
                 </div>
                 <Select
-                  value={itemStatus}
+                  value={itemStatus} // Use ID as value
                   onValueChange={(value) => {
                     dispatch({ type: 'SET_FIELD', field: 'itemStatus', payload: value });
-                    setValidationErrors(prev => ({ ...prev, status: undefined })); // Clear error on change
+                    setValidationErrors(prev => ({ ...prev, statusId: undefined })); // Clear error on change
                   }}
                   disabled={isPending}
                 >
-                  <SelectTrigger id="item-status" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm"><SelectValue placeholder="-- Pilih Kondisi --" /></SelectTrigger>
-                  <SelectContent>{statuses.map((status) => (<SelectItem key={status} value={status}>{status}</SelectItem>))}</SelectContent>
+                  <SelectTrigger id="item-status" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                    <SelectValue placeholder="-- Pilih Kondisi --" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((status) => (
+                      <SelectItem key={status.id} value={status.id}> {/* Use ID for value, name for display */}
+                        {status.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
-                {getFieldError('status') && <p className="text-red-500 text-xs mt-1">{getFieldError('status')}</p>}
+                {getFieldError('statusId') && <p className="text-red-500 text-xs mt-1">{getFieldError('statusId')}</p>}
               </div>
             </div>
 
@@ -421,17 +475,25 @@ export default function InventoryForm({
                 <Button variant="ghost" size="sm" onClick={onAddLocationClick} className="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1 h-auto px-1 py-0.5" disabled={isPending}><Plus className="h-4 w-4 mr-1" />Tambah</Button>
               </div>
               <Select
-                value={itemLocation}
+                value={itemLocation} // Use ID as value
                 onValueChange={(value) => {
                   dispatch({ type: 'SET_FIELD', field: 'itemLocation', payload: value });
-                  setValidationErrors(prev => ({ ...prev, location: undefined })); // Clear error on change
+                  setValidationErrors(prev => ({ ...prev, locationId: undefined })); // Clear error on change
                 }}
                 disabled={isPending}
               >
-                <SelectTrigger id="item-location" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm"><SelectValue placeholder="-- Pilih Lokasi --" /></SelectTrigger>
-                <SelectContent>{locations.map((loc) => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent>
+                <SelectTrigger id="item-location" className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                  <SelectValue placeholder="-- Pilih Lokasi --" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map((loc) => (
+                    <SelectItem key={loc.id} value={loc.id}> {/* Use ID for value, name for display */}
+                      {loc.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
-              {getFieldError('location') && <p className="text-red-500 text-xs mt-1">{getFieldError('location')}</p>}
+              {getFieldError('locationId') && <p className="text-red-500 text-xs mt-1">{getFieldError('locationId')}</p>}
             </div>
 
             <div>

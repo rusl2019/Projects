@@ -22,34 +22,39 @@ export const SpecsSchema = z.object({
 export const InventoryItemSchema = z.object({
   id: z.string().cuid('ID item tidak valid.').optional(), // ID is optional for adding, required for updating
   name: z.string().min(3, "Nama item harus minimal 3 karakter."),
-  category: z.string().min(1, "Kategori item tidak boleh kosong."),
+  categoryId: z.string().cuid("ID kategori tidak valid.").min(1, "Kategori item tidak boleh kosong."),
   qty: z.number().int().min(0, "Kuantitas item harus angka positif."),
-  status: z.string().min(1, "Status item tidak boleh kosong."),
-  location: z.string().min(1, "Lokasi item tidak boleh kosong."),
+  statusId: z.string().cuid("ID status tidak valid.").min(1, "Status item tidak boleh kosong."),
+  locationId: z.string().cuid("ID lokasi tidak valid.").min(1, "Lokasi item tidak boleh kosong."),
   description: z.string().optional(), // Description can be empty
 
   // Specs are only required/validated if the category is "Set Komputer"
   specs: SpecsSchema, // This will be handled with .superRefine for conditional validation
-}).superRefine((data, ctx) => {
-  if (data.category === "Set Komputer") {
-    if (!data.specs) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Spesifikasi komponen harus diisi untuk 'Set Komputer'.",
-        path: ["specs"],
-      });
-    } else {
-      // Further check if at least one spec category has items, or if all are empty
-      const hasAnySpecs = Object.values(data.specs).some(arr => arr && arr.length > 0);
-      if (!hasAnySpecs) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Setidaknya satu jenis komponen harus ditambahkan untuk 'Set Komputer'.",
-          path: ["specs"],
-        });
-      }
-    }
+}).superRefine(async (data, ctx) => {
+  if (!data.categoryId) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Kategori item tidak boleh kosong.",
+      path: ["categoryId"],
+    });
+    return;
   }
+
+  // Fetch category name to check if it's "Set Komputer"
+  // This requires `prisma` to be available here, which is usually not ideal in a pure validation file.
+  // For simplicity and to avoid circular deps with Prisma, we'll assume the category name will be checked in the action.
+  // However, for Zod's superRefine, we need a way to know the category name.
+  // A better approach might be to pass the category name or the category object to the validation.
+  // For now, let's assume `data.categoryName` will be available or infer it from categoryId in the action.
+
+  // To make superRefine work correctly with category name without fetching in validation:
+  // We need to modify InventoryForm.tsx to pass categoryName to the validation data
+  // Or fetch it in the action before calling safeParse.
+  // Given the current structure, the check for "Set Komputer" might need to move into the action.
+
+  // For a temporary workaround (until we modify InventoryForm/action to pass categoryName):
+  // We'll skip the 'Set Komputer' specific validation in superRefine directly.
+  // It will be handled in the action after fetching the category name.
 });
 
 // Schema for simple string options (Category, Status, Location)

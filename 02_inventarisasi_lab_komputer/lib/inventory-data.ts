@@ -19,10 +19,13 @@ export interface Specs {
 export interface InventoryItem {
   id: string; // Changed from number to string
   name: string;
-  category: string;
+  categoryId: string; // ID of the Category
+  categoryName: string; // Name of the Category
   qty: number;
-  status: string;
-  location: string;
-  description: string; // New field for HTML description
+  statusId: string; // ID of the Status
+  statusName: string; // Name of the Status
+  locationId: string; // ID of the Location
+  locationName: string; // Name of the Location
+  description?: string; // New field for HTML description
   specs: Specs | null;
 }

@@ -15,10 +15,10 @@ interface Specs {
 interface InventoryItemJson {
   id: string; // Old ID from JSON, we won't use it
   name: string;
-  category: string;
+  category: string; // Still category name from JSON
   qty: number;
-  status: string;
-  location: string;
+  status: string; // Still status name from JSON
+  location: string; // Still location name from JSON
   description: string;
   specs: Specs | null;
 }
@@ -41,46 +41,69 @@ async function main() {
   // Categories
   const categoriesFilePath = path.join(process.cwd(), 'data', 'categories.json');
   const categoriesJson: string[] = JSON.parse(await fs.readFile(categoriesFilePath, 'utf-8'));
+  const categoriesMap = new Map<string, string>(); // name -> id
   for (const catName of categoriesJson) {
-    await prisma.category.create({ data: { name: catName } });
+    const createdCat = await prisma.category.create({ data: { name: catName } });
+    categoriesMap.set(catName, createdCat.id);
     console.log(`Seeded Category: ${catName}`);
   }
 
   // Statuses
   const statusesFilePath = path.join(process.cwd(), 'data', 'statuses.json');
   const statusesJson: string[] = JSON.parse(await fs.readFile(statusesFilePath, 'utf-8'));
+  const statusesMap = new Map<string, string>(); // name -> id
   for (const statusName of statusesJson) {
-    await prisma.status.create({ data: { name: statusName } });
+    const createdStatus = await prisma.status.create({ data: { name: statusName } });
+    statusesMap.set(statusName, createdStatus.id);
     console.log(`Seeded Status: ${statusName}`);
   }
 
   // Locations
   const locationsFilePath = path.join(process.cwd(), 'data', 'locations.json');
   const locationsJson: string[] = JSON.parse(await fs.readFile(locationsFilePath, 'utf-8'));
+  const locationsMap = new Map<string, string>(); // name -> id
   for (const locName of locationsJson) {
-    await prisma.location.create({ data: { name: locName } });
+    const createdLoc = await prisma.location.create({ data: { name: locName } });
+    locationsMap.set(locName, createdLoc.id);
     console.log(`Seeded Location: ${locName}`);
   }
   console.log('Master data seeding finished.');
 
 
-  // 3. First Pass (Existing Logic): Create all InventoryItem records without relations
+  // 3. First Pass: Create all InventoryItem records with relations
   console.log('\n--- First Pass: Creating all InventoryItems ---');
   const filePath = path.join(process.cwd(), 'data', 'inventory.json');
   const jsonData = await fs.readFile(filePath, 'utf-8');
   const inventoryItemsJson: InventoryItemJson[] = JSON.parse(jsonData);
 
-  const createdItemsMap = new Map<string, { id: string }>();
+  const createdItemsMap = new Map<string, { id: string }>(); // Map item name to its created ID
 
   for (const item of inventoryItemsJson) {
+    const categoryId = categoriesMap.get(item.category);
+    const statusId = statusesMap.get(item.status);
+    const locationId = locationsMap.get(item.location);
+
+    if (!categoryId) {
+      console.warn(`WARN: Category "${item.category}" not found for item "${item.name}". Skipping item.`);
+      continue;
+    }
+    if (!statusId) {
+      console.warn(`WARN: Status "${item.status}" not found for item "${item.name}". Skipping item.`);
+      continue;
+    }
+    if (!locationId) {
+      console.warn(`WARN: Location "${item.location}" not found for item "${item.name}". Skipping item.`);
+      continue;
+    }
+
     try {
       const createdItem = await prisma.inventoryItem.create({
         data: {
           name: item.name,
-          category: item.category, // Storing name for now, will be replaced by relation later
+          categoryId: categoryId,
           qty: item.qty,
-          status: item.status,     // Storing name for now
-          location: item.location, // Storing name for now
+          statusId: statusId,
+          locationId: locationId,
           description: item.description || '',
         },
       });
@@ -95,10 +118,15 @@ async function main() {
     }
   }
 
-  // 4. Second Pass (Existing Logic): Create Component relations for "Set Komputer" items
+  // 4. Second Pass: Create Component relations for "Set Komputer" items
   console.log('\n--- Second Pass: Creating Component relations for Sets ---');
   for (const item of inventoryItemsJson) {
-    if (item.category === 'Set Komputer' && item.specs) {
+    // Need to get the ID of "Set Komputer" category for comparison
+    const setKomputerCategoryId = categoriesMap.get("Set Komputer");
+    const itemCategoryId = categoriesMap.get(item.category);
+
+
+    if (itemCategoryId === setKomputerCategoryId && item.specs) { // Compare using IDs
       const computerSet = createdItemsMap.get(item.name);
       if (!computerSet) {
         console.warn(`WARN: Computer Set "${item.name}" was not found in created items. Skipping specs.`);

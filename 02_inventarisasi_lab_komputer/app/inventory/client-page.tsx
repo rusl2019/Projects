@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link"; // Import Link
 import { useEffect, useState, useTransition, useCallback } from "react";
 import { HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,18 @@ import InventoryTable from "@/components/InventoryTable";
 import AddOptionModal from "@/components/AddOptionModal";
 import { useInventoryStore } from "@/lib/store";
 import { toast } from "sonner";
+import PaginationControls from "@/components/PaginationControls"; // Import PaginationControls
+
+interface OptionData {
+  id: string;
+  name: string;
+}
 
 interface InventoryPageProps {
   initialInventory: InventoryItem[];
-  initialCategories: string[];
-  initialStatuses: string[];
-  initialLocations: string[];
+  initialCategories: OptionData[];
+  initialStatuses: OptionData[];
+  initialLocations: OptionData[];
 }
 
 export default function InventoryPage({
@@ -29,9 +36,9 @@ export default function InventoryPage({
   // Zustand store integration
   const {
     inventory,
-    categories,
-    statuses,
-    locations,
+    categories, // These are now OptionData[]
+    statuses,   // These are now OptionData[]
+    locations,  // These are now OptionData[]
     searchQuery,
     categoryFilter,
     initializeData,
@@ -78,7 +85,11 @@ export default function InventoryPage({
         if (itemToEdit && itemToEdit.id === id) {
           setItemToEdit(null);
         }
-        toast.success(`Item dengan ID ${result} telah dihapus.`);
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
         setMutatingItemId(null);
       });
     }
@@ -98,18 +109,26 @@ export default function InventoryPage({
     <div className="bg-slate-50 min-h-screen">
       <nav className="bg-blue-900 text-white p-4 shadow-lg sticky top-0 z-40">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <HardDrive className="h-6 w-6 text-blue-300" />
-            LabInventory Pro{" "}
-            <span className="text-[10px] bg-blue-700 px-2 py-0.5 rounded-full ml-2 font-normal tracking-wide italic">
-              v4.2 Zustand
-            </span>
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              <HardDrive className="h-6 w-6 text-blue-300" />
+              LabInventory Pro{" "}
+              <span className="text-[10px] bg-blue-700 px-2 py-0.5 rounded-full ml-2 font-normal tracking-wide italic">
+                v4.2 Zustand
+              </span>
+            </h1>
+            <div className="hidden md:flex items-center gap-4 text-sm">
+              <Link href="/inventory" className="text-blue-200 hover:text-white transition-colors">Inventaris</Link>
+              <Link href="/settings" className="text-blue-200 hover:text-white transition-colors">Pengaturan</Link>
+            </div>
+          </div>
           <div id="stats" className="text-sm font-medium flex gap-4">
             <div className="hidden md:block">
               Total Item:{" "}
               <span id="total-count" className="bg-blue-950 px-2 py-1 rounded">
-                {inventory.length}
+                {/* Display the total number of non-paginated, non-filtered items for context */}
+                {/* inventory here refers to the full, non-paginated list from the store */}
+                {useInventoryStore.getState().inventory.length} 
               </span>
             </div>
           </div>
@@ -120,10 +139,10 @@ export default function InventoryPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <InventoryForm
             initialItem={itemToEdit}
-            categories={categories}
-            statuses={statuses}
-            locations={locations}
-            allInventoryItems={inventory}
+            categories={categories} // Pass OptionData[]
+            statuses={statuses}     // Pass OptionData[]
+            locations={locations}   // Pass OptionData[]
+            allInventoryItems={useInventoryStore.getState().inventory} // Pass full inventory for spec selectors
             onFormSubmitted={handleFormSubmitted}
             onAddCategoryClick={() => setShowAddCategoryModal(true)}
             onAddStatusClick={() => setShowAddStatusModal(true)}
@@ -149,8 +168,8 @@ export default function InventoryPage({
                   <SelectContent>
                     <SelectItem value="all">Semua Kategori</SelectItem>
                     {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -176,6 +195,7 @@ export default function InventoryPage({
               onDeleteItem={handleDeleteItem}
               mutatingItemId={mutatingItemId}
             />
+            <PaginationControls /> {/* Add PaginationControls here */}
           </div>
         </div>
       </main>
@@ -210,4 +230,3 @@ export default function InventoryPage({
     </div>
   );
 }
-

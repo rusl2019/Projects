@@ -11,21 +11,26 @@ datasource db {
 }
 
 model InventoryItem {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  category    String
-  qty         Int
-  status      String
-  location    String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String   @unique
+  description  String?
+  qty          Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations to master data
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  status       Status   @relation(fields: [statusId], references: [id])
+  statusId     String
+  location     Location @relation(fields: [locationId], references: [id])
+  locationId   String
 
   // If this item is a "Set Komputer", this lists its parts.
-  specsAsSet  Component[] @relation("ComputerSet")
+  specsAsSet   Component[] @relation("ComputerSet")
 
   // Lists where this item is used AS a component.
-  usedInSets  Component[] @relation("ComponentItem")
+  usedInSets   Component[] @relation("ComponentItem")
 }
 
 // This is the join table linking a "Set" to its "Components"
@@ -46,16 +51,19 @@ model Component {
 }
 
 model Category {
-  id   String @id @default(cuid())
-  name String @unique
+  id            String          @id @default(cuid())
+  name          String          @unique
+  inventoryItems InventoryItem[]
 }
 
 model Status {
-  id   String @id @default(cuid())
-  name String @unique
+  id            String          @id @default(cuid())
+  name          String          @unique
+  inventoryItems InventoryItem[]
 }
 
 model Location {
-  id   String @id @default(cuid())
-  name String @unique
+  id            String          @id @default(cuid())
+  name          String          @unique
+  inventoryItems InventoryItem[]
 }

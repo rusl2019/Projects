@@ -11,8 +11,10 @@ import { ZodFormattedError } from "zod";
 // Helper Functions for Data Transformation
 // =================================================================
 
-// Maps a full category name to a short key used in the 'specs' object
-const categoryToSpecKey = (category: string): keyof Specs | null => {
+/**
+ * Helper to map category name to spec key, still useful for component identification
+ */
+function categoryToSpecKey(categoryName: string): keyof Specs | null {
   const map: { [key: string]: keyof Specs } = {
     "Processor (CPU)": "cpu",
     "Motherboard": "motherboard",
@@ -22,7 +24,7 @@ const categoryToSpecKey = (category: string): keyof Specs | null => {
     "Power Supply (PSU)": "psu",
     "Casing PC": "case",
   };
-  return map[category] || null;
+  return map[categoryName] || null;
 };
 
 /**
@@ -40,16 +42,15 @@ function prismaToAppItem(prismaItem: any): InventoryItem {
     case: [],
   };
 
-  // The new relation is called `specsAsSet`
   if (prismaItem.specsAsSet) {
     for (const spec of prismaItem.specsAsSet) {
-      // The actual component data is nested inside
       const component = spec.component;
       if (component) {
-        const specKey = categoryToSpecKey(component.category);
+        const componentCategoryName = component.category.name; 
+        const specKey = categoryToSpecKey(componentCategoryName);
         if (specKey) {
           (specs[specKey] as ComponentSpec[]).push({
-            id: component.id, // Pass the component's own ID
+            id: component.id,
             name: component.name,
             qty: spec.qty,
           });
@@ -61,10 +62,13 @@ function prismaToAppItem(prismaItem: any): InventoryItem {
   return {
     id: prismaItem.id,
     name: prismaItem.name,
-    category: prismaItem.category,
+    categoryId: prismaItem.categoryId,
+    categoryName: prismaItem.category.name,
     qty: prismaItem.qty,
-    status: prismaItem.status,
-    location: prismaItem.location,
+    statusId: prismaItem.statusId,
+    statusName: prismaItem.status.name,
+    locationId: prismaItem.locationId,
+    locationName: prismaItem.location.name,
     description: prismaItem.description || "",
     specs,
   };
@@ -77,7 +81,6 @@ const formatErrors = (errors: ZodFormattedError<any>) => {
     if (errors[key]?._errors.length > 0) {
       formatted[key] = errors[key]._errors;
     }
-    // Handle nested errors for specs
     if (errors[key] && typeof errors[key] === "object" && !Array.isArray(errors[key])) {
       const nestedErrors = formatErrors(errors[key] as ZodFormattedError<any>);
       for (const nestedKey in nestedErrors) {
@@ -102,10 +105,14 @@ type ActionResponse<T> = {
 export async function getInventoryItems(): Promise<InventoryItem[]> {
   const prismaItems = await prisma.inventoryItem.findMany({
     include: {
+      category: true,
+      status: true,
+      location: true,
       specsAsSet: {
-        // Include the join table
         include: {
-          component: true, // And include the actual component data
+          component: {
+            include: { category: true }
+          },
         },
       },
     },
@@ -118,9 +125,14 @@ export async function getInventoryItemById(id: string): Promise<InventoryItem | 
   const prismaItem = await prisma.inventoryItem.findUnique({
     where: { id },
     include: {
+      category: true,
+      status: true,
+      location: true,
       specsAsSet: {
         include: {
-          component: true,
+          component: {
+            include: { category: true }
+          },
         },
       },
     },
@@ -133,23 +145,37 @@ export async function getInventoryItemById(id: string): Promise<InventoryItem | 
   return prismaToAppItem(prismaItem);
 }
 
-export async function addInventory(itemData: Omit<InventoryItem, "id">): Promise<ActionResponse<InventoryItem>> {
+export async function addInventory(itemData: Omit<InventoryItem, "id" | "categoryName" | "statusName" | "locationName">): Promise<ActionResponse<InventoryItem>> {
   const parsed = InventoryItemSchema.safeParse(itemData);
 
   if (!parsed.success) {
     return {
       success: false,
-      errors: parsed.error.format(),
+      errors: formatErrors(parsed.error.format()),
       message: "Validasi gagal untuk penambahan inventaris baru.",
     };
   }
 
-  const { specs, ...restOfItemData } = parsed.data;
-  const isSetKomputer = restOfItemData.category === "Set Komputer";
+  const { categoryId, statusId, locationId, specs, ...restOfItemData } = parsed.data;
+
+  const category = await prisma.category.findUnique({ where: { id: categoryId } });
+  if (!category) {
+    return { success: false, message: "Kategori tidak ditemukan." };
+  }
+  const isSetKomputer = category.name === "Set Komputer";
+
+  if (isSetKomputer) {
+    if (!specs) {
+      return { success: false, errors: { specs: ["Spesifikasi komponen harus diisi untuk 'Set Komputer'."] }, message: "Validasi gagal." };
+    }
+    const hasAnySpecs = Object.values(specs).some(arr => arr && arr.length > 0);
+    if (!hasAnySpecs) {
+      return { success: false, errors: { specs: ["Setidaknya satu jenis komponen harus ditambahkan untuk 'Set Komputer'."] }, message: "Validasi gagal." };
+    }
+  }
 
   try {
     const newItem = await prisma.$transaction(async (tx) => {
-      // --- Start Stock Management Logic ---
       const componentsToCreate: { qty: number; componentId: string }[] = [];
       if (isSetKomputer && specs) {
         for (const specKey in specs) {
@@ -157,12 +183,10 @@ export async function addInventory(itemData: Omit<InventoryItem, "id">): Promise
           if (componentArray) {
             for (const compSpec of componentArray) {
               if (compSpec.id) {
-                // Check stock availability
                 const componentItem = await tx.inventoryItem.findUnique({ where: { id: compSpec.id } });
                 if (!componentItem || componentItem.qty < compSpec.qty) {
                   throw new Error(`Stok untuk '${compSpec.name}' tidak mencukupi (tersisa: ${componentItem?.qty || 0}).`);
                 }
-                // Decrement stock
                 await tx.inventoryItem.update({
                   where: { id: compSpec.id },
                   data: { qty: { decrement: compSpec.qty } },
@@ -173,15 +197,18 @@ export async function addInventory(itemData: Omit<InventoryItem, "id">): Promise
           }
         }
       }
-      // --- End Stock Management Logic ---
 
       const createdItem = await tx.inventoryItem.create({
         data: {
           ...restOfItemData,
+          categoryId,
+          statusId,
+          locationId,
           specsAsSet: {
             create: componentsToCreate,
           },
         },
+        include: { category: true, status: true, location: true }
       });
       return createdItem;
     });
@@ -193,35 +220,52 @@ export async function addInventory(itemData: Omit<InventoryItem, "id">): Promise
       return { success: false, errors: { name: ["Nama item ini sudah ada. Harap gunakan nama lain."] }, message: "Nama item duplikat." };
     }
     console.error("Error adding inventory item:", error);
-    // Return specific stock error message
     return { success: false, message: error.message || "Terjadi kesalahan saat menambahkan item." };
   }
 }
 
-export async function updateInventory(updatedItem: InventoryItem): Promise<ActionResponse<InventoryItem>> {
-  const parsed = InventoryItemSchema.safeParse(updatedItem);
+export async function updateInventory(itemData: InventoryItem): Promise<ActionResponse<InventoryItem>> {
+  const parsed = InventoryItemSchema.safeParse(itemData);
 
   if (!parsed.success) {
     return {
       success: false,
-      errors: parsed.error.format(),
+      errors: formatErrors(parsed.error.format()),
       message: "Validasi gagal untuk pembaruan inventaris.",
     };
   }
 
-  const { id, specs: newSpecs, ...restOfItemData } = parsed.data;
-  const isNowSetKomputer = restOfItemData.category === "Set Komputer";
+  const { id, categoryId, statusId, locationId, specs: newSpecs, ...restOfItemData } = parsed.data;
+
+  const category = await prisma.category.findUnique({ where: { id: categoryId } });
+  if (!category) {
+    return { success: false, message: "Kategori tidak ditemukan." };
+  }
+  const isNowSetKomputer = category.name === "Set Komputer";
+
+  if (isNowSetKomputer) {
+    if (!newSpecs) {
+      return { success: false, errors: { specs: ["Spesifikasi komponen harus diisi untuk 'Set Komputer'."] }, message: "Validasi gagal." };
+    }
+    const hasAnySpecs = Object.values(newSpecs).some(arr => arr && arr.length > 0);
+    if (!hasAnySpecs) {
+      return { success: false, errors: { specs: ["Setidaknya satu jenis komponen harus ditambahkan untuk 'Set Komputer'."] }, message: "Validasi gagal." };
+    }
+  }
 
   try {
     const updatedPrismaItem = await prisma.$transaction(async (tx) => {
       const oldItem = await tx.inventoryItem.findUnique({
         where: { id },
-        include: { specsAsSet: { include: { component: true } } },
+        include: { 
+          category: true,
+          specsAsSet: { include: { component: true } }
+        },
       });
 
       if (!oldItem) throw new Error("Item tidak ditemukan untuk diperbarui.");
 
-      const wasSetKomputer = oldItem.category === "Set Komputer";
+      const wasSetKomputer = oldItem.category.name === "Set Komputer";
 
       const oldComponents = new Map<string, number>();
       if (wasSetKomputer) {
@@ -239,31 +283,27 @@ export async function updateInventory(updatedItem: InventoryItem): Promise<Actio
          });
        }
 
-      // Calculate delta
       const stockChanges = new Map<string, { name: string, change: number }>();
 
-      // Items to be returned to stock
       oldComponents.forEach((oldQty, componentId) => {
         const newComp = newComponents.get(componentId);
         const newQty = newComp ? newComp.qty : 0;
-        const change = oldQty - newQty; // Positive if quantity decreased or removed
+        const change = oldQty - newQty;
         if (change > 0) {
-            stockChanges.set(componentId, { name: oldItem.specsAsSet.find(s => s.componentId === componentId)?.component.name || 'N/A', change: change }); // Increment stock
+            stockChanges.set(componentId, { name: oldItem.specsAsSet.find(s => s.componentId === componentId)?.component.name || 'N/A', change: change });
         }
       });
       
-      // Items to be taken from stock
       newComponents.forEach((newComp, componentId) => {
         const oldQty = oldComponents.get(componentId) || 0;
-        const change = oldQty - newComp.qty; // Negative if quantity increased or added
+        const change = oldQty - newComp.qty;
          if (change < 0) {
-           stockChanges.set(componentId, { name: newComp.name, change: change }); // Decrement stock
+           stockChanges.set(componentId, { name: newComp.name, change: change });
          }
       });
 
-      // Validate stock for decrements
       for (const [componentId, { name, change }] of stockChanges.entries()) {
-        if (change < 0) { // Decrementing stock
+        if (change < 0) {
           const componentItem = await tx.inventoryItem.findUnique({ where: { id: componentId } });
           const requiredQty = Math.abs(change);
           if (!componentItem || componentItem.qty < requiredQty) {
@@ -272,11 +312,10 @@ export async function updateInventory(updatedItem: InventoryItem): Promise<Actio
         }
       }
 
-      // Apply stock changes
       for (const [componentId, { change }] of stockChanges.entries()) {
          await tx.inventoryItem.update({
            where: { id: componentId },
-           data: { qty: { increment: change } }, // increment handles both positive and negative
+           data: { qty: { increment: change } },
          });
       }
       
@@ -287,23 +326,25 @@ export async function updateInventory(updatedItem: InventoryItem): Promise<Actio
           })
       }
 
-      // Finally, update the item itself
       const result = await tx.inventoryItem.update({
         where: { id },
         data: {
           ...restOfItemData,
+          categoryId,
+          statusId,
+          locationId,
           specsAsSet: {
-            deleteMany: {}, // Delete all existing component relations
-            create: componentsToCreate, // Create new relations
+            deleteMany: {},
+            create: componentsToCreate,
           },
         },
+        include: { category: true, status: true, location: true }
       });
 
       return result;
     });
 
     revalidatePath("/inventory");
-    // We need to fetch the item again to return it in the correct format
     const finalItem = await getInventoryItemById(updatedPrismaItem.id);
     return { success: true, data: finalItem, message: "Item berhasil diperbarui!" };
   } catch (error: any) {
@@ -317,25 +358,22 @@ export async function updateInventory(updatedItem: InventoryItem): Promise<Actio
 
 export async function deleteInventory(id: string): Promise<ActionResponse<string>> {
   try {
-    // Check if the item is used as a component in any set
-     const usageCount = await prisma.component.count({ where: { componentId: id } });
-     if (usageCount > 0) {
+    const usageCount = await prisma.component.count({ where: { componentId: id } });
+    if (usageCount > 0) {
        return { success: false, message: `Item ini tidak dapat dihapus karena sedang digunakan di ${usageCount} Set Komputer.` };
      }
 
     await prisma.$transaction(async (tx) => {
-      // Find the item to be deleted, including its own components if it's a set
       const itemToDelete = await tx.inventoryItem.findUnique({
         where: { id },
-        include: { specsAsSet: true }, // To see if it's a set and what's inside
+        include: { category: true, specsAsSet: true },
       });
 
       if (!itemToDelete) {
         throw new Error("Item tidak ditemukan.");
       }
       
-      // If it's a Set Komputer, return its components to stock
-      if (itemToDelete.category === "Set Komputer" && itemToDelete.specsAsSet.length > 0) {
+      if (itemToDelete.category.name === "Set Komputer" && itemToDelete.specsAsSet.length > 0) {
         for (const spec of itemToDelete.specsAsSet) {
           await tx.inventoryItem.update({
             where: { id: spec.componentId },
@@ -344,7 +382,6 @@ export async function deleteInventory(id: string): Promise<ActionResponse<string
         }
       }
 
-      // Now, delete the item itself
       await tx.inventoryItem.delete({
         where: { id },
       });
@@ -362,15 +399,18 @@ export async function deleteInventory(id: string): Promise<ActionResponse<string
 // Category, Status, Location Actions (NOW using Prisma with Validation)
 // =================================================================
 
+type OptionData = { id: string; name: string };
+
 type OptionActionResponse = {
   success: boolean;
+  data?: OptionData;
   errors?: { name?: string[] };
   message?: string;
 };
 
-export async function getAllCategories(): Promise<string[]> {
-  const categories = await prisma.category.findMany({ select: { name: true } });
-  return categories.map(c => c.name);
+export async function getAllCategories(): Promise<OptionData[]> {
+  const categories = await prisma.category.findMany({ select: { id: true, name: true } });
+  return categories;
 }
 
 export async function addCategory(categoryName: string): Promise<OptionActionResponse> {
@@ -382,9 +422,9 @@ export async function addCategory(categoryName: string): Promise<OptionActionRes
   try {
     const existingCategory = await prisma.category.findUnique({ where: { name: parsed.data.name } });
     if (!existingCategory) {
-      await prisma.category.create({ data: { name: parsed.data.name } });
+      const newCategory = await prisma.category.create({ data: { name: parsed.data.name } });
       revalidatePath("/inventory");
-      return { success: true, message: `Kategori '${parsed.data.name}' berhasil ditambahkan.` };
+      return { success: true, data: { id: newCategory.id, name: newCategory.name }, message: `Kategori '${parsed.data.name}' berhasil ditambahkan.` };
     } else {
       return { success: false, errors: { name: ["Kategori ini sudah ada."] }, message: "Kategori duplikat." };
     }
@@ -394,9 +434,51 @@ export async function addCategory(categoryName: string): Promise<OptionActionRes
   }
 }
 
-export async function getAllStatuses(): Promise<string[]> {
-  const statuses = await prisma.status.findMany({ select: { name: true } });
-  return statuses.map(s => s.name);
+export async function updateCategory(id: string, newName: string): Promise<OptionActionResponse> {
+  const parsed = OptionSchema.safeParse({ name: newName });
+  if (!parsed.success) {
+    return { success: false, errors: parsed.error.format(), message: "Validasi gagal." };
+  }
+
+  try {
+    const existingCategory = await prisma.category.findFirst({
+      where: { name: parsed.data.name, id: { not: id } },
+    });
+    if (existingCategory) {
+      return { success: false, errors: { name: ["Kategori dengan nama ini sudah ada."] }, message: "Nama kategori duplikat." };
+    }
+
+    const updatedCategory = await prisma.category.update({
+      where: { id },
+      data: { name: parsed.data.name },
+    });
+    revalidatePath("/inventory");
+    return { success: true, data: { id: updatedCategory.id, name: updatedCategory.name }, message: `Kategori '${updatedCategory.name}' berhasil diperbarui.` };
+  } catch (error) {
+    console.error("Error updating category:", error);
+    return { success: false, message: "Terjadi kesalahan saat memperbarui kategori." };
+  }
+}
+
+export async function deleteCategory(id: string): Promise<OptionActionResponse> {
+  try {
+    const usageCount = await prisma.inventoryItem.count({ where: { categoryId: id } });
+    if (usageCount > 0) {
+      return { success: false, message: `Kategori ini tidak dapat dihapus karena digunakan oleh ${usageCount} item inventaris.` };
+    }
+
+    const deletedCategory = await prisma.category.delete({ where: { id } });
+    revalidatePath("/inventory");
+    return { success: true, data: { id: deletedCategory.id, name: deletedCategory.name }, message: `Kategori '${deletedCategory.name}' berhasil dihapus.` };
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    return { success: false, message: "Terjadi kesalahan saat menghapus kategori." };
+  }
+}
+
+export async function getAllStatuses(): Promise<OptionData[]> {
+  const statuses = await prisma.status.findMany({ select: { id: true, name: true } });
+  return statuses;
 }
 
 export async function addStatus(statusName: string): Promise<OptionActionResponse> {
@@ -408,9 +490,9 @@ export async function addStatus(statusName: string): Promise<OptionActionRespons
   try {
     const existingStatus = await prisma.status.findUnique({ where: { name: parsed.data.name } });
     if (!existingStatus) {
-      await prisma.status.create({ data: { name: parsed.data.name } });
+      const newStatus = await prisma.status.create({ data: { name: parsed.data.name } });
       revalidatePath("/inventory");
-      return { success: true, message: `Status '${parsed.data.name}' berhasil ditambahkan.` };
+      return { success: true, data: { id: newStatus.id, name: newStatus.name }, message: `Status '${parsed.data.name}' berhasil ditambahkan.` };
     } else {
       return { success: false, errors: { name: ["Status ini sudah ada."] }, message: "Status duplikat." };
     }
@@ -420,9 +502,51 @@ export async function addStatus(statusName: string): Promise<OptionActionRespons
   }
 }
 
-export async function getAllLocations(): Promise<string[]> {
-  const locations = await prisma.location.findMany({ select: { name: true } });
-  return locations.map(l => l.name);
+export async function updateStatus(id: string, newName: string): Promise<OptionActionResponse> {
+  const parsed = OptionSchema.safeParse({ name: newName });
+  if (!parsed.success) {
+    return { success: false, errors: parsed.error.format(), message: "Validasi gagal." };
+  }
+
+  try {
+    const existingStatus = await prisma.status.findFirst({
+      where: { name: parsed.data.name, id: { not: id } },
+    });
+    if (existingStatus) {
+      return { success: false, errors: { name: ["Status dengan nama ini sudah ada."] }, message: "Nama status duplikat." };
+    }
+
+    const updatedStatus = await prisma.status.update({
+      where: { id },
+      data: { name: parsed.data.name },
+    });
+    revalidatePath("/inventory");
+    return { success: true, data: { id: updatedStatus.id, name: updatedStatus.name }, message: `Status '${updatedStatus.name}' berhasil diperbarui.` };
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return { success: false, message: "Terjadi kesalahan saat memperbarui status." };
+  }
+}
+
+export async function deleteStatus(id: string): Promise<OptionActionResponse> {
+  try {
+    const usageCount = await prisma.inventoryItem.count({ where: { statusId: id } });
+    if (usageCount > 0) {
+      return { success: false, message: `Status ini tidak dapat dihapus karena digunakan oleh ${usageCount} item inventaris.` };
+    }
+
+    const deletedStatus = await prisma.status.delete({ where: { id } });
+    revalidatePath("/inventory");
+    return { success: true, data: { id: deletedStatus.id, name: deletedStatus.name }, message: `Status '${deletedStatus.name}' berhasil dihapus.` };
+  } catch (error) {
+    console.error("Error deleting status:", error);
+    return { success: false, message: "Terjadi kesalahan saat menghapus status." };
+  }
+}
+
+export async function getAllLocations(): Promise<OptionData[]> {
+  const locations = await prisma.location.findMany({ select: { id: true, name: true } });
+  return locations;
 }
 
 export async function addLocation(locationName: string): Promise<OptionActionResponse> {
@@ -434,14 +558,56 @@ export async function addLocation(locationName: string): Promise<OptionActionRes
   try {
     const existingLocation = await prisma.location.findUnique({ where: { name: parsed.data.name } });
     if (!existingLocation) {
-      await prisma.location.create({ data: { name: parsed.data.name } });
+      const newLocation = await prisma.location.create({ data: { name: parsed.data.name } });
       revalidatePath("/inventory");
-      return { success: true, message: `Lokasi '${parsed.data.name}' berhasil ditambahkan.` };
+      return { success: true, data: { id: newLocation.id, name: newLocation.name }, message: `Lokasi '${newLocation.name}' berhasil ditambahkan.` };
     } else {
       return { success: false, errors: { name: ["Lokasi ini sudah ada."] }, message: "Lokasi duplikat." };
     }
   } catch (error) {
     console.error("Error adding location:", error);
     return { success: false, message: "Terjadi kesalahan saat menambahkan lokasi." };
+  }
+}
+
+export async function updateLocation(id: string, newName: string): Promise<OptionActionResponse> {
+  const parsed = OptionSchema.safeParse({ name: newName });
+  if (!parsed.success) {
+    return { success: false, errors: parsed.error.format(), message: "Validasi gagal." };
+  }
+
+  try {
+    const existingLocation = await prisma.location.findFirst({
+      where: { name: parsed.data.name, id: { not: id } },
+    });
+    if (existingLocation) {
+      return { success: false, errors: { name: ["Lokasi dengan nama ini sudah ada."] }, message: "Nama lokasi duplikat." };
+    }
+
+    const updatedLocation = await prisma.location.update({
+      where: { id },
+      data: { name: parsed.data.name },
+    });
+    revalidatePath("/inventory");
+    return { success: true, data: { id: updatedLocation.id, name: updatedLocation.name }, message: `Lokasi '${updatedLocation.name}' berhasil diperbarui.` };
+  } catch (error) {
+    console.error("Error updating location:", error);
+    return { success: false, message: "Terjadi kesalahan saat memperbarui lokasi." };
+  }
+}
+
+export async function deleteLocation(id: string): Promise<OptionActionResponse> {
+  try {
+    const usageCount = await prisma.inventoryItem.count({ where: { locationId: id } });
+    if (usageCount > 0) {
+      return { success: false, message: `Lokasi ini tidak dapat dihapus karena digunakan oleh ${usageCount} item inventaris.` };
+    }
+
+    const deletedLocation = await prisma.location.delete({ where: { id } });
+    revalidatePath("/inventory");
+    return { success: true, data: { id: deletedLocation.id, name: deletedLocation.name }, message: `Lokasi '${deletedLocation.name}' berhasil dihapus.` };
+  } catch (error) {
+    console.error("Error deleting location:", error);
+    return { success: false, message: "Terjadi kesalahan saat menghapus lokasi." };
   }
 }
