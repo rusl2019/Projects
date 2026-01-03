@@ -46,7 +46,7 @@ function prismaToAppItem(prismaItem: any): InventoryItem {
     for (const spec of prismaItem.specsAsSet) {
       const component = spec.component;
       if (component) {
-        const componentCategoryName = component.category.name; 
+        const componentCategoryName = component.category.name;
         const specKey = categoryToSpecKey(componentCategoryName);
         if (specKey) {
           (specs[specKey] as ComponentSpec[]).push({
@@ -75,20 +75,31 @@ function prismaToAppItem(prismaItem: any): InventoryItem {
 }
 
 // Helper to format Zod errors
-const formatErrors = (errors: ZodFormattedError<any>) => {
-  const formatted: { [key: string]: string[] } = {};
+const formatErrors = (errors: ZodFormattedError<any>, pathPrefix = ''): { [key: string]: string[] } => {
+  let flattenedErrors: { [key: string]: string[] } = {};
+
+  // Process the errors for the current level
+  if (errors._errors.length) {
+    // Use pathPrefix for field-specific errors, or a general key for root-level errors
+    const key = pathPrefix || '_global';
+    flattenedErrors[key] = (flattenedErrors[key] || []).concat(errors._errors);
+  }
+
+  // Recurse into nested properties
   for (const key in errors) {
-    if (errors[key]?._errors.length > 0) {
-      formatted[key] = errors[key]._errors;
-    }
-    if (errors[key] && typeof errors[key] === "object" && !Array.isArray(errors[key])) {
-      const nestedErrors = formatErrors(errors[key] as ZodFormattedError<any>);
-      for (const nestedKey in nestedErrors) {
-        formatted[`${key}.${nestedKey}`] = nestedErrors[nestedKey];
-      }
+    if (key === '_errors') continue; // Skip the special _errors key
+
+    const nestedErrors = errors[key as keyof typeof errors];
+    if (nestedErrors) {
+      const newPath = pathPrefix ? `${pathPrefix}.${key}` : key;
+      flattenedErrors = {
+        ...flattenedErrors,
+        ...formatErrors(nestedErrors as ZodFormattedError<any>, newPath),
+      };
     }
   }
-  return formatted;
+
+  return flattenedErrors;
 };
 
 // =================================================================
@@ -162,18 +173,22 @@ export async function importInventory(data: any[]): Promise<ActionResponse<{ add
 
   // 2. Process each row
   for (const [index, row] of data.entries()) {
-    const rowNum = index + 2; // Excel rows are 1-based, plus header
+    const rowNum = index + 1; // Use 1-based indexing for user-facing errors
 
     try {
-      const name = row['Nama Item'];
-      const categoryName = row['Kategori'];
-      const statusName = row['Kondisi'];
-      const locationName = row['Lokasi'];
-      const qty = row['Stok'];
+      // Check if it's an Excel import (with different keys) or JSON import
+      const isExcelImport = 'Nama Item' in row;
       
+      const name = isExcelImport ? row['Nama Item'] : row.name;
+      const categoryName = isExcelImport ? row['Kategori'] : row.categoryName;
+      const statusName = isExcelImport ? row['Kondisi'] : row.statusName;
+      const locationName = isExcelImport ? row['Lokasi'] : row.locationName;
+      const qty = isExcelImport ? row['Stok'] : row.qty;
+      const description = isExcelImport ? row['Deskripsi'] : row.description;
+
       // Basic validation
       if (!name) {
-        errors.push(`Baris ${rowNum}: 'Nama Item' tidak boleh kosong.`);
+        errors.push(`Baris ${rowNum}: 'Nama Item'/'name' tidak boleh kosong.`);
         continue;
       }
 
@@ -181,7 +196,7 @@ export async function importInventory(data: any[]): Promise<ActionResponse<{ add
       const categoryId = categoryMap.get(categoryName?.toLowerCase());
       const statusId = statusMap.get(statusName?.toLowerCase());
       const locationId = locationMap.get(locationName?.toLowerCase());
-      
+
       if (!categoryId) {
         errors.push(`Baris ${rowNum}: Kategori '${categoryName}' tidak ditemukan.`);
         continue;
@@ -194,38 +209,90 @@ export async function importInventory(data: any[]): Promise<ActionResponse<{ add
         errors.push(`Baris ${rowNum}: Lokasi '${locationName}' tidak ditemukan.`);
         continue;
       }
-      
+
+      let specs;
+      if (isExcelImport) {
+        // Excel import might have specs in a different format or not at all
+        // For now, we'll assume it doesn't and handle it later if needed.
+        specs = undefined;
+      } else {
+        specs = row.specs;
+        // Handle cases where `specs` from JSON is a string that needs parsing
+        if (specs && typeof specs === 'string') {
+          try {
+            specs = JSON.parse(specs);
+          } catch (e) {
+            errors.push(`Baris ${rowNum} (${name}): Spesifikasi (specs) tidak dalam format JSON yang valid.`);
+            continue; // Skip to next row
+          }
+        }
+      }
+
       const itemData = {
         name: String(name),
         categoryId,
         statusId,
         locationId,
         qty: Number(qty) || 0,
-        description: row['Deskripsi'] ? String(row['Deskripsi']) : '',
-        specs: null // Specs import is too complex for this version, handled separately.
+        description: description ? String(description) : '',
+        specs: specs || undefined, // Use the potentially parsed specs
       };
 
       // Zod validation
-      const parsed = InventoryItemSchema.safeParse(itemData);
+      const parsed = await InventoryItemSchema.safeParseAsync(itemData);
       if (!parsed.success) {
         const issues = Object.values(formatErrors(parsed.error.format())).flat().join(', ');
         errors.push(`Baris ${rowNum} (${name}): Validasi gagal - ${issues}`);
         continue;
       }
-      
-      // 3. Upsert to DB
-      const result = await prisma.inventoryItem.upsert({
-        where: { name: itemData.name },
-        update: parsed.data,
-        create: parsed.data,
-      });
 
-      // Check if it was created or updated
-      if (result.createdAt.getTime() === result.updatedAt.getTime()) {
-        added++;
-      } else {
-        updated++;
-      }
+      // 3. Upsert to DB (Transaction-based to handle relations)
+      const { specs: newSpecs, ...itemDataForPrisma } = parsed.data;
+
+      const category = categories.find(c => c.id === itemDataForPrisma.categoryId);
+      const isSetKomputer = category?.name === "Set Komputer";
+
+      await prisma.$transaction(async (tx) => {
+        const existingItem = await tx.inventoryItem.findUnique({
+          where: { name: itemDataForPrisma.name },
+        });
+
+        const componentsToCreate: { qty: number; componentId: string }[] = [];
+        if (isSetKomputer && newSpecs) {
+          const allComponents = Object.values(newSpecs).flat();
+          for (const compSpec of allComponents) {
+            if (compSpec && compSpec.id) {
+              componentsToCreate.push({ qty: compSpec.qty, componentId: compSpec.id });
+            }
+          }
+        }
+
+        if (existingItem) {
+          // UPDATE
+          await tx.component.deleteMany({ where: { setId: existingItem.id }});
+          await tx.inventoryItem.update({
+            where: { id: existingItem.id },
+            data: {
+              ...itemDataForPrisma,
+              specsAsSet: {
+                create: componentsToCreate,
+              },
+            },
+          });
+          updated++;
+        } else {
+          // CREATE
+          await tx.inventoryItem.create({
+            data: {
+              ...itemDataForPrisma,
+              specsAsSet: {
+                create: componentsToCreate,
+              },
+            },
+          });
+          added++;
+        }
+      });
 
     } catch (error: any) {
       errors.push(`Baris ${rowNum}: Terjadi kesalahan - ${error.message}`);
@@ -247,7 +314,7 @@ export async function importInventory(data: any[]): Promise<ActionResponse<{ add
 }
 
 export async function addInventory(itemData: Omit<InventoryItem, "id" | "categoryName" | "statusName" | "locationName">): Promise<ActionResponse<InventoryItem>> {
-  const parsed = InventoryItemSchema.safeParse(itemData);
+  const parsed = await InventoryItemSchema.safeParseAsync(itemData);
 
   if (!parsed.success) {
     return {
@@ -326,7 +393,7 @@ export async function addInventory(itemData: Omit<InventoryItem, "id" | "categor
 }
 
 export async function updateInventory(itemData: InventoryItem): Promise<ActionResponse<InventoryItem>> {
-  const parsed = InventoryItemSchema.safeParse(itemData);
+  const parsed = await InventoryItemSchema.safeParseAsync(itemData);
 
   if (!parsed.success) {
     return {
@@ -358,7 +425,7 @@ export async function updateInventory(itemData: InventoryItem): Promise<ActionRe
     const updatedPrismaItem = await prisma.$transaction(async (tx) => {
       const oldItem = await tx.inventoryItem.findUnique({
         where: { id },
-        include: { 
+        include: {
           category: true,
           specsAsSet: { include: { component: true } }
         },
@@ -375,14 +442,14 @@ export async function updateInventory(itemData: InventoryItem): Promise<ActionRe
         });
       }
 
-      const newComponents = new Map<string, {name: string, qty: number}>();
-       if (isNowSetKomputer && newSpecs) {
-         Object.values(newSpecs).flat().forEach(spec => {
-            if(spec.id) {
-                newComponents.set(spec.id, { name: spec.name, qty: spec.qty });
-            }
-         });
-       }
+      const newComponents = new Map<string, { name: string, qty: number }>();
+      if (isNowSetKomputer && newSpecs) {
+        Object.values(newSpecs).flat().forEach(spec => {
+          if (spec.id) {
+            newComponents.set(spec.id, { name: spec.name, qty: spec.qty });
+          }
+        });
+      }
 
       const stockChanges = new Map<string, { name: string, change: number }>();
 
@@ -391,16 +458,16 @@ export async function updateInventory(itemData: InventoryItem): Promise<ActionRe
         const newQty = newComp ? newComp.qty : 0;
         const change = oldQty - newQty;
         if (change > 0) {
-            stockChanges.set(componentId, { name: oldItem.specsAsSet.find(s => s.componentId === componentId)?.component.name || 'N/A', change: change });
+          stockChanges.set(componentId, { name: oldItem.specsAsSet.find(s => s.componentId === componentId)?.component.name || 'N/A', change: change });
         }
       });
-      
+
       newComponents.forEach((newComp, componentId) => {
         const oldQty = oldComponents.get(componentId) || 0;
         const change = oldQty - newComp.qty;
-         if (change < 0) {
-           stockChanges.set(componentId, { name: newComp.name, change: change });
-         }
+        if (change < 0) {
+          stockChanges.set(componentId, { name: newComp.name, change: change });
+        }
       });
 
       for (const [componentId, { name, change }] of stockChanges.entries()) {
@@ -414,17 +481,17 @@ export async function updateInventory(itemData: InventoryItem): Promise<ActionRe
       }
 
       for (const [componentId, { change }] of stockChanges.entries()) {
-         await tx.inventoryItem.update({
-           where: { id: componentId },
-           data: { qty: { increment: change } },
-         });
+        await tx.inventoryItem.update({
+          where: { id: componentId },
+          data: { qty: { increment: change } },
+        });
       }
-      
+
       const componentsToCreate: { qty: number; componentId: string }[] = [];
-      if(isNowSetKomputer) {
-          newComponents.forEach((comp, id) => {
-              componentsToCreate.push({qty: comp.qty, componentId: id});
-          })
+      if (isNowSetKomputer) {
+        newComponents.forEach((comp, id) => {
+          componentsToCreate.push({ qty: comp.qty, componentId: id });
+        })
       }
 
       const result = await tx.inventoryItem.update({
@@ -461,8 +528,8 @@ export async function deleteInventory(id: string): Promise<ActionResponse<string
   try {
     const usageCount = await prisma.component.count({ where: { componentId: id } });
     if (usageCount > 0) {
-       return { success: false, message: `Item ini tidak dapat dihapus karena sedang digunakan di ${usageCount} Set Komputer.` };
-     }
+      return { success: false, message: `Item ini tidak dapat dihapus karena sedang digunakan di ${usageCount} Set Komputer.` };
+    }
 
     await prisma.$transaction(async (tx) => {
       const itemToDelete = await tx.inventoryItem.findUnique({
@@ -473,7 +540,7 @@ export async function deleteInventory(id: string): Promise<ActionResponse<string
       if (!itemToDelete) {
         throw new Error("Item tidak ditemukan.");
       }
-      
+
       if (itemToDelete.category.name === "Set Komputer" && itemToDelete.specsAsSet.length > 0) {
         for (const spec of itemToDelete.specsAsSet) {
           await tx.inventoryItem.update({
@@ -493,6 +560,72 @@ export async function deleteInventory(id: string): Promise<ActionResponse<string
   } catch (error: any) {
     console.error("Error deleting inventory item:", error);
     return { success: false, message: error.message || "Terjadi kesalahan saat menghapus item." };
+  }
+}
+
+export async function bulkDeleteInventory(ids: string[]): Promise<ActionResponse<string[]>> {
+  if (!ids || ids.length === 0) {
+    return { success: false, message: "Tidak ada item yang dipilih untuk dihapus." };
+  }
+
+  try {
+    // Check for component usage first
+    const itemsInUse = await prisma.inventoryItem.findMany({
+      where: {
+        id: { in: ids },
+        usedInSets: { some: {} }, // Check if it's used as a component in any set
+      },
+      select: { name: true },
+    });
+
+    if (itemsInUse.length > 0) {
+      const itemNames = itemsInUse.map(item => item.name).join(", ");
+      return {
+        success: false,
+        message: `Gagal menghapus. Item berikut sedang digunakan di Set Komputer: ${itemNames}.`,
+      };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // Find all items that are "Set Komputer" to restock their components
+      const setsToDelete = await tx.inventoryItem.findMany({
+        where: {
+          id: { in: ids },
+          category: { name: "Set Komputer" },
+        },
+        include: { specsAsSet: true },
+      });
+
+      // Restock components from the sets being deleted
+      for (const set of setsToDelete) {
+        if (set.specsAsSet.length > 0) {
+          for (const spec of set.specsAsSet) {
+            await tx.inventoryItem.update({
+              where: { id: spec.componentId },
+              data: { qty: { increment: spec.qty } },
+            });
+          }
+        }
+      }
+
+      // Finally, delete all selected items
+      await tx.inventoryItem.deleteMany({
+        where: { id: { in: ids } },
+      });
+    });
+
+    revalidatePath("/inventory");
+    return {
+      success: true,
+      data: ids,
+      message: `${ids.length} item berhasil dihapus.`,
+    };
+  } catch (error: any) {
+    console.error("Error deleting inventory items in bulk:", error);
+    return {
+      success: false,
+      message: error.message || "Terjadi kesalahan saat menghapus item secara massal.",
+    };
   }
 }
 

@@ -70,47 +70,6 @@
     "id": "f7c3a9d6-2e96-4b8f-8a5c-1e9d6b7f4c07"
   },
   {
-    "name": "Server Zeus",
-    "category": "Set Komputer",
-    "qty": 1,
-    "status": "Bagus",
-    "location": "CompChem I",
-    "description": "",
-    "specs": {
-      "cpu": [
-        {
-          "name": "Intel® Xeon® E5-2620 v4",
-          "qty": 1
-        }
-      ],
-      "ram": [
-        {
-          "name": "Undefined DDR4 16 GB",
-          "qty": 4
-        }
-      ],
-      "gpu": [
-        {
-          "name": "NVIDIA GeForce GT 1030",
-          "qty": 1
-        }
-      ],
-      "storage": [
-        {
-          "name": "Galax Gamer SSD",
-          "qty": 1
-        },
-        {
-          "name": "WD Red NAS HDD (WDC WD60EFAX-68SHWN0)",
-          "qty": 6
-        }
-      ],
-      "psu": [],
-      "case": []
-    },
-    "id": "c3e969c7-ea69-4f8e-80dd-c1589fdd3efa"
-  },
-  {
     "name": "Asus Sabertooth X99",
     "category": "Motherboard",
     "qty": 1,

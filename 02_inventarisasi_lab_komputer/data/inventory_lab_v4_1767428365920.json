@@ -1,0 +1,771 @@
+[
+  {
+    "id": "cmjy168sc001a0zqbp7z9h18u",
+    "name": "Server Samus 2",
+    "categoryId": "cmjxz43ud0000mzqbfs3oh9w5",
+    "categoryName": "Set Komputer",
+    "qty": 1,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [
+        {
+          "id": "cmjxz46s8000lmzqbfw0rsn1y",
+          "name": "Intel® Xeon® E5-2697 v2",
+          "qty": 2
+        }
+      ],
+      "motherboard": [
+        {
+          "id": "cmjy142q700190zqbyybp0b7w",
+          "name": "HUANANZHI X79-8D",
+          "qty": 1
+        }
+      ],
+      "ram": [
+        {
+          "id": "cmjy0o0ah000w0zqb9ofte4ju",
+          "name": "Undefined DDR3 16 GB",
+          "qty": 8
+        }
+      ],
+      "gpu": [
+        {
+          "id": "cmjy12l1f00180zqbqw5sad18",
+          "name": "Sapphire AMD Radeon HD 8490",
+          "qty": 1
+        }
+      ],
+      "storage": [
+        {
+          "id": "cmjy10wn700170zqbwnt23rkf",
+          "name": "OSC 128GB SSD M.2 NVMe ",
+          "qty": 1
+        }
+      ],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy142q700190zqbyybp0b7w",
+    "name": "HUANANZHI X79-8D",
+    "categoryId": "cmjxz444r0002mzqbkb9cq3wr",
+    "categoryName": "Motherboard",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy12l1f00180zqbqw5sad18",
+    "name": "Sapphire AMD Radeon HD 8490",
+    "categoryId": "cmjxz44dx0004mzqb7znlv1s3",
+    "categoryName": "Kartu Grafis (GPU)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy10wn700170zqbwnt23rkf",
+    "name": "OSC 128GB SSD M.2 NVMe ",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0t6xy000z0zqbonb0m0ve",
+    "name": "Server Samus 1",
+    "categoryId": "cmjxz43ud0000mzqbfs3oh9w5",
+    "categoryName": "Set Komputer",
+    "qty": 1,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [
+        {
+          "id": "cmjxz46s8000lmzqbfw0rsn1y",
+          "name": "Intel® Xeon® E5-2697 v2",
+          "qty": 2
+        }
+      ],
+      "motherboard": [
+        {
+          "id": "cmjy0ra8y000y0zqbqijvn3np",
+          "name": "ASUS Z9PA-D8 Series",
+          "qty": 1
+        }
+      ],
+      "ram": [
+        {
+          "id": "cmjy0o0ah000w0zqb9ofte4ju",
+          "name": "Undefined DDR3 16 GB",
+          "qty": 8
+        }
+      ],
+      "gpu": [],
+      "storage": [
+        {
+          "id": "cmjy0qb4c000x0zqbkf86vn0c",
+          "name": "Patriot Spark 128 GB SSD",
+          "qty": 1
+        }
+      ],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0ra8y000y0zqbqijvn3np",
+    "name": "ASUS Z9PA-D8 Series",
+    "categoryId": "cmjxz444r0002mzqbkb9cq3wr",
+    "categoryName": "Motherboard",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0qb4c000x0zqbkf86vn0c",
+    "name": "Patriot Spark 128 GB SSD",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "  Device Model:     Patriot Spark\n  Serial Number:    7D4B07661DDF00237990\n  User Capacity:    128,035,676,160 bytes [128 GB]\n  Rotation Rate:    Solid State Device",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0o0ah000w0zqb9ofte4ju",
+    "name": "Undefined DDR3 16 GB",
+    "categoryId": "cmjxz44990003mzqb9jg62288",
+    "categoryName": "Memori (RAM)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0knz2000m0zqbnkhp0nj5",
+    "name": "Server Zelda",
+    "categoryId": "cmjxz43ud0000mzqbfs3oh9w5",
+    "categoryName": "Set Komputer",
+    "qty": 1,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [
+        {
+          "id": "cmjxz46gl000jmzqbvuyhmhkx",
+          "name": "Intel® Core™ i7-5820K",
+          "qty": 1
+        }
+      ],
+      "motherboard": [
+        {
+          "id": "cmjy0ho1d000l0zqb1j18so31",
+          "name": "ASUS STRIX X99 GAMING",
+          "qty": 1
+        }
+      ],
+      "ram": [
+        {
+          "id": "cmjxztkzw000f0zqb94idus6h",
+          "name": "Undefined DDR4 8 GB",
+          "qty": 4
+        }
+      ],
+      "gpu": [
+        {
+          "id": "cmjy0fu91000k0zqbzxt3su91",
+          "name": "Asus NVIDIA GeForce GTX 970",
+          "qty": 1
+        }
+      ],
+      "storage": [
+        {
+          "id": "cmjxz47s5000tmzqbm4o7e12i",
+          "name": "WD Red 6 TB NAS HDD",
+          "qty": 1
+        },
+        {
+          "id": "cmjxzyu4v000g0zqbyd8wix1l",
+          "name": "WD Red 8 TB NAS HDD",
+          "qty": 1
+        },
+        {
+          "id": "cmjy06v1d000h0zqbp4w7c2jx",
+          "name": "SanDisk 256 GB SSD",
+          "qty": 1
+        },
+        {
+          "id": "cmjy0a4re000i0zqbxjsuuxha",
+          "name": "Samsung 860 EVO 500GB SSD",
+          "qty": 1
+        },
+        {
+          "id": "cmjy0e2it000j0zqblhqq64ag",
+          "name": "WD Green 6 TB Desktop HDD",
+          "qty": 1
+        }
+      ],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0ho1d000l0zqb1j18so31",
+    "name": "ASUS STRIX X99 GAMING",
+    "categoryId": "cmjxz444r0002mzqbkb9cq3wr",
+    "categoryName": "Motherboard",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0fu91000k0zqbzxt3su91",
+    "name": "Asus NVIDIA GeForce GTX 970",
+    "categoryId": "cmjxz44dx0004mzqb7znlv1s3",
+    "categoryName": "Kartu Grafis (GPU)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0e2it000j0zqblhqq64ag",
+    "name": "WD Green 6 TB Desktop HDD",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "  Model Family:     Western Digital Green<br>\n  Device Model:     WDC WD60EZRX-11MVLB1<br>\n  Serial Number:    WD-WX11DC4FKFSL<br>\n  User Capacity:    6,001,141,572,096 bytes [6.00 TB]<br>\n  Rotation Rate:    5700 rpm<br>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy0a4re000i0zqbxjsuuxha",
+    "name": "Samsung 860 EVO 500GB SSD",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "  Model Family:     Samsung based SSDs<br>\n  Device Model:     Samsung SSD 860 EVO 500GB<br>\n  Serial Number:    S3YANB0M220282F<br>\n  User Capacity:    500,107,862,016 bytes [500 GB]<br>\n  Rotation Rate:    Solid State Device<br>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjy06v1d000h0zqbp4w7c2jx",
+    "name": "SanDisk 256 GB SSD",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "Model Family:     Marvell based SanDisk SSDs<br>\n  Device Model:     SanDisk SDSSDH2256G<br>\n  Serial Number:    124949400057<br>\n  User Capacity:    256,060,514,304 bytes [256 GB]<br>\n  Rotation Rate:    Solid State Device<br>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxzyu4v000g0zqbyd8wix1l",
+    "name": "WD Red 8 TB NAS HDD",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "  Model Family:     Western Digital Red<br>\n  Device Model:     WDC WD80EFZX-68UW8N0<br>\n  User Capacity:    8,001,563,222,016 bytes [8.00 TB]<br>\n  Rotation Rate:    5400 rpm<br>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxztkzw000f0zqb94idus6h",
+    "name": "Undefined DDR4 8 GB",
+    "categoryId": "cmjxz44990003mzqb9jg62288",
+    "categoryName": "Memori (RAM)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxzgqfj00060zqbvarzknrj",
+    "name": "Server Zeus",
+    "categoryId": "cmjxz43ud0000mzqbfs3oh9w5",
+    "categoryName": "Set Komputer",
+    "qty": 1,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "",
+    "specs": {
+      "cpu": [
+        {
+          "id": "cmjxz480t000vmzqbyp58hc6v",
+          "name": "Intel® Xeon® E5-2620 v4",
+          "qty": 1
+        }
+      ],
+      "motherboard": [
+        {
+          "id": "cmjxz47fr000qmzqbw9gmopfe",
+          "name": "ASUS SABERTOOTH X99",
+          "qty": 1
+        }
+      ],
+      "ram": [
+        {
+          "id": "cmjxz47we000umzqbel4dsx8p",
+          "name": "Undefined DDR4 16 GB",
+          "qty": 4
+        }
+      ],
+      "gpu": [
+        {
+          "id": "cmjxz47k3000rmzqbg02vc3x8",
+          "name": "Asus NVIDIA GeForce GT 1030",
+          "qty": 1
+        }
+      ],
+      "storage": [
+        {
+          "id": "cmjxz47nt000smzqb8m0qmgd9",
+          "name": "Galax 120 GB SSD",
+          "qty": 1
+        },
+        {
+          "id": "cmjxz47s5000tmzqbm4o7e12i",
+          "name": "WD Red 6 TB NAS HDD",
+          "qty": 4
+        }
+      ],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz480t000vmzqbyp58hc6v",
+    "name": "Intel® Xeon® E5-2620 v4",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left;\">Intel® Xeon® Processor E5-2620 v4 (20M Cache, 2.10 GHz)</th>\n    </tr>\n  </thead>\n\n  <!-- Essentials -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Essentials</strong></td>\n    </tr>\n    <tr><td>Product Collection</td><td>Intel® Xeon® Processor E5 v4 Family</td></tr>\n    <tr><td>Code Name</td><td>Products formerly Broadwell</td></tr>\n    <tr><td>Vertical Segment</td><td>Server</td></tr>\n    <tr><td>Processor Number</td><td>E5-2620V4</td></tr>\n    <tr><td>Lithography</td><td>14 nm</td></tr>\n    <tr><td>Recommended Customer Price</td><td>$417.00–$422.00</td></tr>\n  </tbody>\n\n  <!-- CPU Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>CPU Specifications</strong></td>\n    </tr>\n    <tr><td>Total Cores</td><td>8</td></tr>\n    <tr><td>Total Threads</td><td>16</td></tr>\n    <tr><td>Max Turbo Frequency</td><td>3.00 GHz</td></tr>\n    <tr><td>Intel® Turbo Boost Technology 2.0 Frequency‡</td><td>3.00 GHz</td></tr>\n    <tr><td>Processor Base Frequency</td><td>2.10 GHz</td></tr>\n    <tr><td>Cache</td><td>20 MB Intel® Smart Cache</td></tr>\n    <tr><td>Bus Speed</td><td>8 GT/s</td></tr>\n    <tr><td># of QPI Links</td><td>2</td></tr>\n    <tr><td>TDP</td><td>85 W</td></tr>\n  </tbody>\n\n  <!-- Supplemental Information -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Supplemental Information</strong></td>\n    </tr>\n    <tr><td>Marketing Status</td><td>Launched</td></tr>\n    <tr><td>Launch Date</td><td>Q1'16</td></tr>\n    <tr><td>Servicing Status</td><td>End of Servicing Updates</td></tr>\n    <tr><td>End of Servicing Updates Date</td><td>Thursday, June 30, 2022</td></tr>\n    <tr><td>Embedded Options Available</td><td>Yes</td></tr>\n    <tr><td>Use Conditions</td><td>Server/Enterprise</td></tr>\n  </tbody>\n\n  <!-- Memory Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Memory Specifications</strong></td>\n    </tr>\n    <tr><td>Max Memory Size (dependent on memory type)</td><td>1.5 TB</td></tr>\n    <tr><td>Memory Types</td><td>DDR4 1600/1866/2133</td></tr>\n    <tr><td>Max # of Memory Channels</td><td>4</td></tr>\n    <tr><td>Max Memory Bandwidth</td><td>68.3 GB/s</td></tr>\n    <tr><td>Physical Address Extensions</td><td>46-bit</td></tr>\n    <tr><td>ECC Memory Supported ‡</td><td>Yes</td></tr>\n  </tbody>\n\n  <!-- Expansion Options -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Expansion Options</strong></td>\n    </tr>\n    <tr><td>Scalability</td><td>2S</td></tr>\n    <tr><td>PCI Express Revision</td><td>3.0</td></tr>\n    <tr><td>PCI Express Configurations ‡</td><td>x4, x8, x16</td></tr>\n    <tr><td>Max # of PCI Express Lanes</td><td>40</td></tr>\n  </tbody>\n\n  <!-- Package Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Package Specifications</strong></td>\n    </tr>\n    <tr><td>Sockets Supported</td><td>FCLGA2011</td></tr>\n    <tr><td>Max CPU Configuration</td><td>2</td></tr>\n    <tr><td>T<sub>CASE</sub></td><td>74°C</td></tr>\n    <tr><td>Package Size</td><td>45mm x 52.5mm</td></tr>\n  </tbody>\n\n  <!-- Advanced Technologies -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Advanced Technologies</strong></td>\n    </tr>\n    <tr><td>Intel® Turbo Boost Technology ‡</td><td>2.0</td></tr>\n    <tr><td>Intel® Hyper-Threading Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Transactional Synchronization Extensions</td><td>Yes</td></tr>\n    <tr><td>Intel® 64 ‡</td><td>Yes</td></tr>\n    <tr><td>Instruction Set</td><td>64-bit</td></tr>\n    <tr><td>Instruction Set Extensions</td><td>Intel® AVX2</td></tr>\n    <tr><td>Idle States</td><td>Yes</td></tr>\n    <tr><td>Enhanced Intel SpeedStep® Technology</td><td>Yes</td></tr>\n    <tr><td>Intel® Demand Based Switching</td><td>Yes</td></tr>\n    <tr><td>Thermal Monitoring Technologies</td><td>Yes</td></tr>\n    <tr><td>Intel® Flex Memory Access</td><td>No</td></tr>\n    <tr><td>Intel® Identity Protection Technology ‡</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Security & Reliability -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Security &amp; Reliability</strong></td>\n    </tr>\n    <tr><td>Intel vPro® Eligibility ‡</td><td>Intel vPro® Platform</td></tr>\n    <tr><td>Intel® Secure Key</td><td>Yes</td></tr>\n    <tr><td>Intel® AES New Instructions</td><td>Yes</td></tr>\n    <tr><td>Intel® OS Guard</td><td>Yes</td></tr>\n    <tr><td>Intel® Trusted Execution Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Execute Disable Bit ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology (VT-x) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology for Directed I/O (VT-d) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® VT-x with Extended Page Tables (EPT) ‡</td><td>Yes</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz47we000umzqbel4dsx8p",
+    "name": "Undefined DDR4 16 GB",
+    "categoryId": "cmjxz44990003mzqb9jg62288",
+    "categoryName": "Memori (RAM)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left;\">Memory Module</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr><td>Size</td><td>16 GB</td></tr>\n    <tr><td>Type</td><td>DDR4</td></tr>\n    <tr><td>Speed</td><td>2133 MT/s</td></tr>\n    <tr><td>Manufacturer</td><td>Undefined</td></tr>\n    <tr><td>Configured Memory Speed</td><td>2133 MT/s</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz47s5000tmzqbm4o7e12i",
+    "name": "WD Red 6 TB NAS HDD",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "  Model Family:     Western Digital Red (SMR)<br>\n  Device Model:     WDC WD60EFAX-68SHWN0<br>\n  User Capacity:    6,001,175,126,016 bytes [6.00 TB]<br>\n  Rotation Rate:    5400 rpm<br>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz47nt000smzqb8m0qmgd9",
+    "name": "Galax 120 GB SSD",
+    "categoryId": "cmjxz44ij0005mzqbisp10ox7",
+    "categoryName": "Penyimpanan (SSD/HDD)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left;\">Storage Device 2</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr><td>Device Model</td><td>GALAX TA1D0120A</td></tr>\n    <tr><td>Serial Number</td><td>64B30774141C00037826</td></tr>\n    <tr><td>User Capacity</td><td>120,034,123,776 bytes [120 GB]</td></tr>\n    <tr><td>Rotation Rate</td><td>Solid State Device</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz47k3000rmzqbg02vc3x8",
+    "name": "Asus NVIDIA GeForce GT 1030",
+    "categoryId": "cmjxz44dx0004mzqb7znlv1s3",
+    "categoryName": "Kartu Grafis (GPU)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2; text-align: left;\">\n      <th colspan=\"3\">NVIDIA GeForce GT 1030 Specifications</th>\n    </tr>\n  </thead>\n  <tbody>\n\n    <!-- GPU Engine Specs -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"3\"><strong>GT 1030 GPU Engine Specs</strong></td>\n    </tr>\n    <tr>\n      <td>NVIDIA CUDA® Cores</td>\n      <td class=\"text-right\">384</td>\n      <td class=\"text-right\">384</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Boost Clock (MHz)</td>\n      <td class=\"text-right\">1379</td>\n      <td class=\"text-right\">1468</td>\n    </tr>\n\n    <!-- Memory Specs -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"3\"><strong>GT 1030 Memory Specs</strong></td>\n    </tr>\n    <tr>\n      <td>Memory Speed</td>\n      <td class=\"text-right\">1050</td>\n      <td class=\"text-right\">3000</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Standard Memory Config</td>\n      <td class=\"text-right\">2 GB</td>\n      <td class=\"text-right\">2 GB</td>\n    </tr>\n    <tr>\n      <td>Memory Interface Width</td>\n      <td class=\"text-right\">64-bit</td>\n      <td class=\"text-right\">64-bit</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Memory Bandwidth (GB/sec)</td>\n      <td class=\"text-right\">16.8</td>\n      <td class=\"text-right\">48</td>\n    </tr>\n\n    <!-- Technology Support -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"3\"><strong>Technology Support</strong></td>\n    </tr>\n    <tr>\n      <td>Simultaneous Multi-Projection</td>\n      <td class=\"text-right\">NO</td>\n      <td class=\"text-right\">NO</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>VR Ready</td>\n      <td class=\"text-right\">NO</td>\n      <td class=\"text-right\">NO</td>\n    </tr>\n    <tr>\n      <td>NVIDIA SLI® Ready</td>\n      <td class=\"text-right\">NO</td>\n      <td class=\"text-right\">NO</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>NVIDIA G-SYNC™-Ready</td>\n      <td class=\"text-right\">NO</td>\n      <td class=\"text-right\">NO</td>\n    </tr>\n    <tr>\n      <td>NVIDIA GameStream™-Ready</td>\n      <td class=\"text-right\">NO</td>\n      <td class=\"text-right\">NO</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>NVIDIA GPU Boost™</td>\n      <td class=\"text-right\">Yes</td>\n      <td class=\"text-right\">Yes</td>\n    </tr>\n    <tr>\n      <td>Microsoft DirectX</td>\n      <td class=\"text-right\">Yes</td>\n      <td class=\"text-right\">Yes</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Vulkan API</td>\n      <td class=\"text-right\">Yes</td>\n      <td class=\"text-right\">Yes</td>\n    </tr>\n    <tr>\n      <td>OpenGL</td>\n      <td class=\"text-right\">4.5</td>\n      <td class=\"text-right\">4.5</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Bus Support</td>\n      <td class=\"text-right\">PCIe 3.0</td>\n      <td class=\"text-right\">PCIe 3.0</td>\n    </tr>\n    <tr>\n      <td>OS Certification</td>\n      <td class=\"text-right\">Windows 7-10, Linux, FreeBSD x86</td>\n      <td class=\"text-right\">Windows 7-10, Linux, FreeBSD x86</td>\n    </tr>\n\n    <!-- Display Support -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"3\"><strong>Display Support</strong></td>\n    </tr>\n    <tr>\n      <td>Maximum Digital Resolution<sup>1</sup></td>\n      <td class=\"text-right\">7680x4320@60Hz</td>\n      <td class=\"text-right\">7680x4320@60Hz</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Standard Display Connectors</td>\n      <td class=\"text-right\">DP 1.4, HDMI 2.0b, Single Link-DVI</td>\n      <td class=\"text-right\">DP 1.4, HDMI 2.0b, Single Link-DVI</td>\n    </tr>\n    <tr>\n      <td>Multi Monitor</td>\n      <td class=\"text-right\">Yes</td>\n      <td class=\"text-right\">Yes</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>HDCP</td>\n      <td class=\"text-right\">2.2</td>\n      <td class=\"text-right\">2.2</td>\n    </tr>\n\n    <!-- Dimensions -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"3\"><strong>GT 1030 Graphics Card Dimensions</strong></td>\n    </tr>\n    <tr>\n      <td>Height</td>\n      <td class=\"text-right\">4.72 inches</td>\n      <td class=\"text-right\">4.72 inches</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Length</td>\n      <td class=\"text-right\">5.4 inches</td>\n      <td class=\"text-right\">6.68 inches</td>\n    </tr>\n    <tr>\n      <td>Width</td>\n      <td class=\"text-right\">2-slot</td>\n      <td class=\"text-right\">2-slot</td>\n    </tr>\n\n    <!-- Thermal and Power -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"3\"><strong>Thermal and Power Specs</strong></td>\n    </tr>\n    <tr>\n      <td>Maximum GPU Temperature (°C)</td>\n      <td class=\"text-right\">97°C</td>\n      <td class=\"text-right\">97°C</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Graphics Card Power (W)</td>\n      <td class=\"text-right\">20 W</td>\n      <td class=\"text-right\">30 W</td>\n    </tr>\n    <tr>\n      <td>Minimum Recommended System Power (W)</td>\n      <td class=\"text-right\">300 W</td>\n      <td class=\"text-right\">300 W</td>\n    </tr>\n    <tr style=\"background-color: #f9f9f9;\">\n      <td>Supplementary Power Connectors</td>\n      <td class=\"text-right\">None</td>\n      <td class=\"text-right\">None</td>\n    </tr>\n\n  </tbody>\n</table>\n\n<style>\n.text-right { text-align: right; }\n</style>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz47fr000qmzqbw9gmopfe",
+    "name": "ASUS SABERTOOTH X99",
+    "categoryId": "cmjxz444r0002mzqbkb9cq3wr",
+    "categoryName": "Motherboard",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #d7e1ee;\">\n      <th colspan=\"2\" style=\"text-align: left; font-weight: bold; font-size: 16px; color: #000;\">\n        ASUS Sabertooth X99 – Motherboard Specifications\n      </th>\n    </tr>\n  </thead>\n  <tbody>\n\n    <!-- Motherboard Details -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Motherboard Details</strong></td>\n    </tr>\n    <tr>\n      <td>CPU Make</td>\n      <td>Intel</td>\n    </tr>\n    <tr>\n      <td>Chipset</td>\n      <td>Intel® X99 Chipset</td>\n    </tr>\n    <tr>\n      <td>Form Factor</td>\n      <td>ATX</td>\n    </tr>\n    <tr>\n      <td>CPU Socket</td>\n      <td>Socket 2011-3 / R3 / LGA2011-3</td>\n    </tr>\n    <tr>\n      <td>Total RAM</td>\n      <td>64 GB</td>\n    </tr>\n    <tr>\n      <td>Total USB</td>\n      <td>14 USB slots</td>\n    </tr>\n\n    <!-- Graphics -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Graphics</strong></td>\n    </tr>\n    <tr>\n      <td>GPU Interface</td>\n      <td>PCIe v3.0</td>\n    </tr>\n    <tr>\n      <td>GPU Onboard</td>\n      <td>No</td>\n    </tr>\n    <tr>\n      <td>SLI (Scalable Link Interface)</td>\n      <td>3 Nvidia SLI GPUs</td>\n    </tr>\n    <tr>\n      <td>Crossfire</td>\n      <td>3 AMD/ATI Crossfire GPUs</td>\n    </tr>\n    <tr>\n      <td>Expansion Slots</td>\n      <td>\n        1 × PCIe 2.0 x1<br>\n        1 × PCIe 2.0 x4<br>\n        3 × PCIe 3.0 x16\n      </td>\n    </tr>\n\n    <!-- Memory -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Memory</strong></td>\n    </tr>\n    <tr>\n      <td>Memory Type</td>\n      <td>8×DDR4</td>\n    </tr>\n    <tr>\n      <td>ECC Support</td>\n      <td>Non-ECC</td>\n    </tr>\n    <tr>\n      <td>Memory Channel</td>\n      <td>Quadruple</td>\n    </tr>\n    <tr>\n      <td>Memory Capacity</td>\n      <td>64 GB DDR4</td>\n    </tr>\n    <tr>\n      <td>Memory Slots</td>\n      <td>8×DIMM</td>\n    </tr>\n    <tr>\n      <td>Memory Speed</td>\n      <td>DDR4 2133 MHz, DDR4 2400 MHz</td>\n    </tr>\n\n    <!-- SATA -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>SATA / Storage</strong></td>\n    </tr>\n    <tr>\n      <td>SATA 1 / SATA 2</td>\n      <td>No</td>\n    </tr>\n    <tr>\n      <td>SATA 3</td>\n      <td>8 × SATA 3 (6 Gb/s)</td>\n    </tr>\n    <tr>\n      <td>External SATA</td>\n      <td>No</td>\n    </tr>\n    <tr>\n      <td>HDD RAID Support</td>\n      <td>Yes</td>\n    </tr>\n\n    <!-- Internal I/O Connectors -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Internal I/O Connectors</strong></td>\n    </tr>\n    <tr>\n      <td>Internal USB</td>\n      <td>\n        2 × USB 2.0<br>\n        2 × USB 3.0\n      </td>\n    </tr>\n    <tr>\n      <td>Other Internal Connectors</td>\n      <td>\n        1 × 24-pin power<br>\n        1 × 8-pin CPU power<br>\n        1 × 4-pin CPU power<br>\n        1 × 4-pin fan connector<br>\n        9 × fan headers<br>\n        1 × S/PDIF<br>\n        System Panel Connection<br>\n        TPM Chip\n      </td>\n    </tr>\n\n    <!-- Back Panel Connectors -->\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Back Panel I/O</strong></td>\n    </tr>\n    <tr>\n      <td>USB Ports</td>\n      <td>\n        4 × USB 2.0<br>\n        6 × USB 3.0\n      </td>\n    </tr>\n    <tr>\n      <td>Audio & Other</td>\n      <td>\n        Line In<br>\n        Line Out<br>\n        Mic In<br>\n        7.1 Surround Sound<br>\n        PS/2 Keyboard<br>\n        PS/2 Mouse\n      </td>\n    </tr>\n\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz47c2000pmzqbwz4y371s",
+    "name": "Intel® Xeon® E5-2620",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 1,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left; font-size: 16px;\">\n        Intel® Xeon® Processor E5-2620 (15M Cache, 2.00 GHz, 7.20 GT/s Intel® QPI)\n      </th>\n    </tr>\n  </thead>\n\n  <!-- Essentials -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Essentials</strong></td>\n    </tr>\n    <tr><td>Product Collection</td><td>Intel® Xeon® Processor E5 Family</td></tr>\n    <tr><td>Code Name</td><td>Products formerly Sandy Bridge EP</td></tr>\n    <tr><td>Vertical Segment</td><td>Server</td></tr>\n    <tr><td>Processor Number</td><td>E5-2620</td></tr>\n    <tr><td>Lithography</td><td>32 nm</td></tr>\n    <tr><td>Recommended Customer Price</td><td>$360.00</td></tr>\n  </tbody>\n\n  <!-- CPU Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>CPU Specifications</strong></td>\n    </tr>\n    <tr><td>Total Cores</td><td>6</td></tr>\n    <tr><td>Total Threads</td><td>12</td></tr>\n    <tr><td>Max Turbo Frequency</td><td>2.50 GHz</td></tr>\n    <tr><td>Processor Base Frequency</td><td>2.00 GHz</td></tr>\n    <tr><td>Cache</td><td>15 MB Intel® Smart Cache</td></tr>\n    <tr><td>Bus Speed</td><td>7.2 GT/s</td></tr>\n    <tr><td># of QPI Links</td><td>2</td></tr>\n    <tr><td>TDP</td><td>95 W</td></tr>\n  </tbody>\n\n  <!-- Supplemental Information -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Supplemental Information</strong></td>\n    </tr>\n    <tr><td>Marketing Status</td><td>Discontinued</td></tr>\n    <tr><td>Launch Date</td><td>Q1'12</td></tr>\n    <tr><td>Servicing Status</td><td>End of Servicing Lifetime</td></tr>\n    <tr><td>End of Servicing Updates Date</td><td>Tuesday, June 30, 2020</td></tr>\n    <tr><td>Embedded Options Available</td><td>Yes</td></tr>\n    <tr><td>Use Conditions</td><td>Server/Enterprise</td></tr>\n  </tbody>\n\n  <!-- Memory Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Memory Specifications</strong></td>\n    </tr>\n    <tr><td>Max Memory Size (dependent on memory type)</td><td>384 GB</td></tr>\n    <tr><td>Memory Types</td><td>DDR3 800/1066/1333</td></tr>\n    <tr><td>Max # of Memory Channels</td><td>4</td></tr>\n    <tr><td>Max Memory Bandwidth</td><td>42.6 GB/s</td></tr>\n    <tr><td>ECC Memory Supported ‡</td><td>Yes</td></tr>\n  </tbody>\n\n  <!-- Expansion Options -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Expansion Options</strong></td>\n    </tr>\n    <tr><td>Scalability</td><td>2S Only</td></tr>\n    <tr><td>PCI Express Revision</td><td>3.0</td></tr>\n    <tr><td>Max # of PCI Express Lanes</td><td>40</td></tr>\n  </tbody>\n\n  <!-- Package Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Package Specifications</strong></td>\n    </tr>\n    <tr><td>Sockets Supported</td><td>FCLGA2011</td></tr>\n    <tr><td>Max CPU Configuration</td><td>2</td></tr>\n    <tr><td>T<sub>CASE</sub></td><td>77.4°C</td></tr>\n    <tr><td>Package Size</td><td>52.5 mm x 45.0 mm</td></tr>\n  </tbody>\n\n  <!-- Advanced Technologies -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Advanced Technologies</strong></td>\n    </tr>\n    <tr><td>Intel® Turbo Boost Technology ‡</td><td>1.0</td></tr>\n    <tr><td>Intel® Hyper-Threading Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® 64 ‡</td><td>Yes</td></tr>\n    <tr><td>Instruction Set</td><td>64-bit</td></tr>\n    <tr><td>Instruction Set Extensions</td><td>Intel® AVX</td></tr>\n    <tr><td>Idle States</td><td>Yes</td></tr>\n    <tr><td>Enhanced Intel SpeedStep® Technology</td><td>Yes</td></tr>\n    <tr><td>Intel® Demand Based Switching</td><td>Yes</td></tr>\n    <tr><td>Thermal Monitoring Technologies</td><td>Yes</td></tr>\n    <tr><td>Intel® Flex Memory Access</td><td>No</td></tr>\n    <tr><td>Intel® Identity Protection Technology ‡</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Security & Reliability -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Security &amp; Reliability</strong></td>\n    </tr>\n    <tr><td>Intel vPro® Eligibility ‡</td><td>Intel vPro® Platform</td></tr>\n    <tr><td>Intel® AES New Instructions</td><td>Yes</td></tr>\n    <tr><td>Intel® Trusted Execution Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Execute Disable Bit ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology (VT-x) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology for Directed I/O (VT-d) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® VT-x with Extended Page Tables (EPT) ‡</td><td>Yes</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz477p000omzqbfie58858",
+    "name": "AMD Ryzen™ Threadripper™ 2990WX",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 2,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left; font-size: 16px;\">\n        AMD Ryzen™ Threadripper™ 2990WX – Specifications\n      </th>\n    </tr>\n  </thead>\n\n  <!-- General Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>General Specifications</strong></td>\n    </tr>\n    <tr><td>Name</td><td>AMD Ryzen™ Threadripper™ 2990WX</td></tr>\n    <tr><td>Family</td><td>Ryzen Threadripper</td></tr>\n    <tr><td>Series</td><td>Ryzen Threadripper 2000 Series</td></tr>\n    <tr><td>Form Factor</td><td>Desktops, Boxed Processor</td></tr>\n    <tr><td>Former Codename</td><td>Colfax</td></tr>\n    <tr><td># of CPU Cores</td><td>32</td></tr>\n    <tr><td># of Threads</td><td>64</td></tr>\n    <tr><td>Max. Boost Clock</td><td>Up to 4.2 GHz</td></tr>\n    <tr><td>Base Clock</td><td>3 GHz</td></tr>\n    <tr><td>L1 Cache</td><td>3072 KB</td></tr>\n    <tr><td>L2 Cache</td><td>16 MB</td></tr>\n    <tr><td>L3 Cache</td><td>64 MB</td></tr>\n    <tr><td>Default TDP</td><td>250 W</td></tr>\n    <tr><td>Processor Technology for CPU Cores</td><td>12nm</td></tr>\n    <tr><td>Unlocked for Overclocking</td><td>Yes</td></tr>\n    <tr><td>CPU Socket</td><td>sTR4</td></tr>\n    <tr><td>Thermal Solution (PIB)</td><td>Not Included</td></tr>\n    <tr><td>Max. Operating Temperature (Tjmax)</td><td>68°C</td></tr>\n    <tr><td>Launch Date</td><td>8/13/2018</td></tr>\n    <tr><td>*OS Support</td><td>Windows 10 - 64-Bit Edition, RHEL x86 64-Bit, Ubuntu x86 64-Bit</td></tr>\n  </tbody>\n\n  <!-- Connectivity -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Connectivity</strong></td>\n    </tr>\n    <tr><td>PCI Express® Version</td><td>PCIe® 3.0</td></tr>\n    <tr><td>System Memory Type</td><td>DDR4</td></tr>\n    <tr><td>Memory Channels</td><td>4</td></tr>\n    <tr><td>System Memory Specification</td><td>Up to 2933 MT/s</td></tr>\n  </tbody>\n\n  <!-- Graphics Capabilities -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Graphics Capabilities</strong></td>\n    </tr>\n    <tr><td>Graphics Model</td><td>Discrete Graphics Card Required</td></tr>\n  </tbody>\n\n  <!-- Product IDs -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Product IDs</strong></td>\n    </tr>\n    <tr><td>Product ID (Boxed)</td><td>YD299XAZAFWOF</td></tr>\n    <tr><td>Product ID (Tray)</td><td>YD299XAZUIHAF</td></tr>\n  </tbody>\n\n  <!-- Key Features -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Key Features</strong></td>\n    </tr>\n    <tr><td>Supported Technologies</td><td>AMD SenseMI Technology, AMD Zen Core Architecture, AMD Ryzen™ Master Utility</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz472g000nmzqbrid6pdij",
+    "name": "Intel® Xeon® E5-2686 v4",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 1,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left; font-size: 18px;\">\n        Intel Xeon E5-2686 v4 Specifications\n      </th>\n    </tr>\n  </thead>\n\n  <!-- General Information -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>General Information</strong></td>\n    </tr>\n    <tr><td>Type</td><td>CPU / Microprocessor</td></tr>\n    <tr><td>Market Segment</td><td>Server</td></tr>\n    <tr><td>Family</td><td>Intel Xeon E5-2600 v4</td></tr>\n    <tr><td>Model Number</td><td>E5-2686 v4</td></tr>\n    <tr><td>CPU Part Number</td><td>CM8066002685800 (OEM/tray microprocessor)</td></tr>\n    <tr><td>Frequency</td><td>2.3 GHz / 2300 MHz</td></tr>\n    <tr><td>Maximum Turbo Frequency</td><td>3.0 GHz / 3000 MHz</td></tr>\n    <tr><td>Clock Multiplier</td><td>23</td></tr>\n    <tr><td>Package</td><td>2011-land Flip-Chip Land Grid Array</td></tr>\n    <tr><td>Socket</td><td>Socket 2011-3 / R3 / LGA2011-3</td></tr>\n    <tr><td>Introduction Date</td><td>November 2016</td></tr>\n  </tbody>\n\n  <!-- S-spec Numbers -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>S-spec Numbers</strong></td>\n    </tr>\n    <tr>\n      <td>Part Number</td>\n      <td>CM8066002685800</td>\n    </tr>\n    <tr>\n      <td>S-spec</td>\n      <td>SR2K8</td>\n    </tr>\n  </tbody>\n\n  <!-- Architecture / Microarchitecture -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Architecture / Microarchitecture</strong></td>\n    </tr>\n    <tr><td>Instruction Set</td><td>x86</td></tr>\n    <tr><td>Microarchitecture</td><td>Broadwell</td></tr>\n    <tr><td>Platform</td><td>Grantley-EP 2S</td></tr>\n    <tr><td>Processor Codename</td><td>Broadwell-EP</td></tr>\n    <tr><td>CPUIDs</td><td>406F1</td></tr>\n    <tr><td>Manufacturing Process</td><td>14 nm (0.014 micron)</td></tr>\n    <tr><td>Data Width</td><td>64-bit</td></tr>\n    <tr><td>Number of CPU Cores</td><td>18</td></tr>\n    <tr><td>Number of Threads</td><td>36</td></tr>\n    <tr><td>Floating Point Unit</td><td>Integrated</td></tr>\n    <tr><td>Level 1 Cache</td><td>18 × 32 KB instruction caches<br>18 × 32 KB data caches</td></tr>\n    <tr><td>Level 2 Cache</td><td>18 × 256 KB</td></tr>\n    <tr><td>Level 3 Cache</td><td>45 MB</td></tr>\n    <tr><td>Multiprocessing</td><td>Up to 2 processors</td></tr>\n  </tbody>\n\n  <!-- Extensions & Technologies -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Extensions & Technologies</strong></td>\n    </tr>\n    <tr>\n      <td>Supported Instructions & Features</td>\n      <td>\n        <ul style=\"margin: 0; padding-left: 20px;\">\n          <li>MMX</li>\n          <li>SSE / SSE2 / SSE3 / SSSE3 / SSE4.1 / SSE4.2</li>\n          <li>AES</li>\n          <li>AVX / AVX2</li>\n          <li>BMI1 / BMI2</li>\n          <li>F16C</li>\n          <li>FMA3</li>\n          <li>Intel 64 (EM64T)</li>\n          <li>Hyper-Threading (HT)</li>\n          <li>Intel VT-x</li>\n          <li>Intel Turbo Boost 2.0</li>\n          <li>Transactional Synchronization Extensions (TSX)</li>\n        </ul>\n      </td>\n    </tr>\n  </tbody>\n\n  <!-- Security Features -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Security Features</strong></td>\n    </tr>\n    <tr><td>Execute Disable Bit</td><td>Yes (NX/XD)</td></tr>\n  </tbody>\n\n  <!-- Low Power Features -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Low Power Features</strong></td>\n    </tr>\n    <tr><td>Power Management</td><td>Enhanced Intel SpeedStep Technology</td></tr>\n  </tbody>\n\n  <!-- Integrated Graphics -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Integrated Graphics Processing Unit</strong></td>\n    </tr>\n    <tr><td>Graphics</td><td>None</td></tr>\n  </tbody>\n\n  <!-- Integrated Peripherals -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Integrated Peripherals / Components</strong></td>\n    </tr>\n    <tr>\n      <td>Memory Controller</td>\n      <td>\n        1 controller<br>\n        4 memory channels (total)<br>\n        Supports DDR4\n      </td>\n    </tr>\n    <tr>\n      <td>Other Peripherals</td>\n      <td>\n        <ul style=\"margin: 0; padding-left: 20px;\">\n          <li>Direct Media Interface 2.0</li>\n          <li>Quick Path Interconnect (QPI)</li>\n          <li>PCI Express 3.0 interface</li>\n        </ul>\n      </td>\n    </tr>\n  </tbody>\n\n  <!-- Electrical / Thermal -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Electrical / Thermal Parameters</strong></td>\n    </tr>\n    <tr><td>Thermal Design Power (TDP)</td><td>145 W</td></tr>\n  </tbody>\n\n  <!-- Notes -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Notes</strong></td>\n    </tr>\n    <tr><td colspan=\"2\">[1] Information is not confirmed</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz46x6000mmzqbsqlt4s4l",
+    "name": "Intel® Xeon® E5-2699 v3",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 7,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left; font-size: 16px;\">\n        Intel® Xeon® Processor E5-2699 v3 (45M Cache, 2.30 GHz)\n      </th>\n    </tr>\n  </thead>\n\n  <!-- Essentials -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Essentials</strong></td>\n    </tr>\n    <tr><td>Product Collection</td><td>Intel® Xeon® Processor E5 v3 Family</td></tr>\n    <tr><td>Code Name</td><td>Products formerly Haswell</td></tr>\n    <tr><td>Vertical Segment</td><td>Server</td></tr>\n    <tr><td>Processor Number</td><td>E5-2699V3</td></tr>\n    <tr><td>Lithography</td><td>22 nm</td></tr>\n    <tr><td>Recommended Customer Price</td><td>$4115.00</td></tr>\n  </tbody>\n\n  <!-- CPU Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>CPU Specifications</strong></td>\n    </tr>\n    <tr><td>Total Cores</td><td>18</td></tr>\n    <tr><td>Total Threads</td><td>36</td></tr>\n    <tr><td>Max Turbo Frequency</td><td>3.60 GHz</td></tr>\n    <tr><td>Intel® Turbo Boost Technology 2.0 Frequency‡</td><td>3.60 GHz</td></tr>\n    <tr><td>Processor Base Frequency</td><td>2.30 GHz</td></tr>\n    <tr><td>Cache</td><td>45 MB Intel® Smart Cache</td></tr>\n    <tr><td>Bus Speed</td><td>9.6 GT/s</td></tr>\n    <tr><td># of QPI Links</td><td>2</td></tr>\n    <tr><td>TDP</td><td>145 W</td></tr>\n  </tbody>\n\n  <!-- Supplemental Information -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Supplemental Information</strong></td>\n    </tr>\n    <tr><td>Marketing Status</td><td>Discontinued</td></tr>\n    <tr><td>Launch Date</td><td>Q3'14</td></tr>\n    <tr><td>Servicing Status</td><td>End of Servicing Updates</td></tr>\n    <tr><td>End of Servicing Updates Date</td><td>Friday, December 31, 2021</td></tr>\n    <tr><td>Embedded Options Available</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Memory Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Memory Specifications</strong></td>\n    </tr>\n    <tr><td>Max Memory Size (dependent on memory type)</td><td>768 GB</td></tr>\n    <tr><td>Memory Types</td><td>DDR4 1600/1866/2133</td></tr>\n    <tr><td>Max # of Memory Channels</td><td>4</td></tr>\n    <tr><td>Max Memory Bandwidth</td><td>68 GB/s</td></tr>\n    <tr><td>Physical Address Extensions</td><td>46-bit</td></tr>\n    <tr><td>ECC Memory Supported ‡</td><td>Yes</td></tr>\n  </tbody>\n\n  <!-- Expansion Options -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Expansion Options</strong></td>\n    </tr>\n    <tr><td>Scalability</td><td>2S</td></tr>\n    <tr><td>PCI Express Revision</td><td>3.0</td></tr>\n    <tr><td>PCI Express Configurations ‡</td><td>x4, x8, x16</td></tr>\n    <tr><td>Max # of PCI Express Lanes</td><td>40</td></tr>\n  </tbody>\n\n  <!-- Package Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Package Specifications</strong></td>\n    </tr>\n    <tr><td>Sockets Supported</td><td>FCLGA2011</td></tr>\n    <tr><td>Max CPU Configuration</td><td>2</td></tr>\n    <tr><td>T<sub>CASE</sub></td><td>76.4°C</td></tr>\n    <tr><td>Package Size</td><td>52.5 mm x 51 mm</td></tr>\n  </tbody>\n\n  <!-- Advanced Technologies -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Advanced Technologies</strong></td>\n    </tr>\n    <tr><td>Intel® Turbo Boost Technology ‡</td><td>2.0</td></tr>\n    <tr><td>Intel® Hyper-Threading Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Transactional Synchronization Extensions</td><td>No</td></tr>\n    <tr><td>Intel® 64 ‡</td><td>Yes</td></tr>\n    <tr><td>Instruction Set</td><td>64-bit</td></tr>\n    <tr><td>Instruction Set Extensions</td><td>Intel® AVX2</td></tr>\n    <tr><td>Idle States</td><td>Yes</td></tr>\n    <tr><td>Enhanced Intel SpeedStep® Technology</td><td>Yes</td></tr>\n    <tr><td>Intel® Demand Based Switching</td><td>Yes</td></tr>\n    <tr><td>Thermal Monitoring Technologies</td><td>Yes</td></tr>\n    <tr><td>Intel® Flex Memory Access</td><td>No</td></tr>\n    <tr><td>Intel® Identity Protection Technology ‡</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Security & Reliability -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Security &amp; Reliability</strong></td>\n    </tr>\n    <tr><td>Intel vPro® Eligibility ‡</td><td>Intel vPro® Platform</td></tr>\n    <tr><td>Intel® Secure Key</td><td>Yes</td></tr>\n    <tr><td>Intel® AES New Instructions</td><td>Yes</td></tr>\n    <tr><td>Intel® OS Guard</td><td>Yes</td></tr>\n    <tr><td>Intel® Trusted Execution Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Execute Disable Bit ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology (VT-x) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology for Directed I/O (VT-d) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® VT-x with Extended Page Tables (EPT) ‡</td><td>Yes</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz46s8000lmzqbfw0rsn1y",
+    "name": "Intel® Xeon® E5-2697 v2",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left; font-size: 16px;\">\n        Intel® Xeon® Processor E5-2697 v2 (30M Cache, 2.70 GHz)\n      </th>\n    </tr>\n  </thead>\n\n  <!-- Essentials -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Essentials</strong></td>\n    </tr>\n    <tr><td>Product Collection</td><td>Intel® Xeon® Processor E5 v2 Family</td></tr>\n    <tr><td>Code Name</td><td>Products formerly Ivy Bridge EP</td></tr>\n    <tr><td>Vertical Segment</td><td>Server</td></tr>\n    <tr><td>Processor Number</td><td>E5-2697V2</td></tr>\n    <tr><td>Lithography</td><td>22 nm</td></tr>\n    <tr><td>Recommended Customer Price</td><td>$2614.00</td></tr>\n  </tbody>\n\n  <!-- CPU Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>CPU Specifications</strong></td>\n    </tr>\n    <tr><td>Total Cores</td><td>12</td></tr>\n    <tr><td>Total Threads</td><td>24</td></tr>\n    <tr><td>Max Turbo Frequency</td><td>3.50 GHz</td></tr>\n    <tr><td>Intel® Turbo Boost Technology 2.0 Frequency‡</td><td>3.50 GHz</td></tr>\n    <tr><td>Processor Base Frequency</td><td>2.70 GHz</td></tr>\n    <tr><td>Cache</td><td>30 MB Intel® Smart Cache</td></tr>\n    <tr><td>Bus Speed</td><td>8 GT/s</td></tr>\n    <tr><td># of QPI Links</td><td>2</td></tr>\n    <tr><td>TDP</td><td>130 W</td></tr>\n  </tbody>\n\n  <!-- Supplemental Information -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Supplemental Information</strong></td>\n    </tr>\n    <tr><td>Marketing Status</td><td>Discontinued</td></tr>\n    <tr><td>Launch Date</td><td>Q3'13</td></tr>\n    <tr><td>Supply Status</td><td>Discontinued</td></tr>\n    <tr><td>Servicing Status</td><td>End of Servicing Lifetime</td></tr>\n    <tr><td>End of Servicing Updates Date</td><td>Tuesday, June 30, 2020</td></tr>\n    <tr><td>Embedded Options Available</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Memory Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Memory Specifications</strong></td>\n    </tr>\n    <tr><td>Max Memory Size (dependent on memory type)</td><td>768 GB</td></tr>\n    <tr><td>Memory Types</td><td>DDR3 800/1066/1333/1600/1866</td></tr>\n    <tr><td>Max # of Memory Channels</td><td>4</td></tr>\n    <tr><td>Max Memory Bandwidth</td><td>59.7 GB/s</td></tr>\n    <tr><td>Physical Address Extensions</td><td>46-bit</td></tr>\n    <tr><td>ECC Memory Supported ‡</td><td>Yes</td></tr>\n  </tbody>\n\n  <!-- Expansion Options -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Expansion Options</strong></td>\n    </tr>\n    <tr><td>Scalability</td><td>2S Only</td></tr>\n    <tr><td>PCI Express Revision</td><td>3.0</td></tr>\n    <tr><td>PCI Express Configurations ‡</td><td>x4, x8, x16</td></tr>\n    <tr><td>Max # of PCI Express Lanes</td><td>40</td></tr>\n  </tbody>\n\n  <!-- Package Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Package Specifications</strong></td>\n    </tr>\n    <tr><td>Sockets Supported</td><td>FCLGA2011</td></tr>\n    <tr><td>Max CPU Configuration</td><td>2</td></tr>\n    <tr><td>T<sub>CASE</sub></td><td>86°C</td></tr>\n    <tr><td>Package Size</td><td>52.5 mm x 51 mm</td></tr>\n  </tbody>\n\n  <!-- Advanced Technologies -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Advanced Technologies</strong></td>\n    </tr>\n    <tr><td>Intel® Turbo Boost Technology ‡</td><td>2.0</td></tr>\n    <tr><td>Intel® Hyper-Threading Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Transactional Synchronization Extensions</td><td>No</td></tr>\n    <tr><td>Intel® 64 ‡</td><td>Yes</td></tr>\n    <tr><td>Instruction Set</td><td>64-bit</td></tr>\n    <tr><td>Instruction Set Extensions</td><td>Intel® AVX</td></tr>\n    <tr><td>Idle States</td><td>Yes</td></tr>\n    <tr><td>Enhanced Intel SpeedStep® Technology</td><td>Yes</td></tr>\n    <tr><td>Intel® Demand Based Switching</td><td>Yes</td></tr>\n    <tr><td>Thermal Monitoring Technologies</td><td>Yes</td></tr>\n    <tr><td>Intel® Flex Memory Access</td><td>No</td></tr>\n    <tr><td>Intel® Identity Protection Technology ‡</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Security & Reliability -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Security &amp; Reliability</strong></td>\n    </tr>\n    <tr><td>Intel vPro® Eligibility ‡</td><td>Intel vPro® Platform</td></tr>\n    <tr><td>Intel® Secure Key</td><td>Yes</td></tr>\n    <tr><td>Intel® AES New Instructions</td><td>Yes</td></tr>\n    <tr><td>Intel® OS Guard</td><td>Yes</td></tr>\n    <tr><td>Intel® Trusted Execution Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Execute Disable Bit ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology (VT-x) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology for Directed I/O (VT-d) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® VT-x with Extended Page Tables (EPT) ‡</td><td>Yes</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz46lr000kmzqblnu8che0",
+    "name": "Intel® Xeon® E5-2650L v4",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 1,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left; font-size: 16px;\">\n        Intel® Xeon® Processor E5-2650L v4 (35M Cache, 1.70 GHz)\n      </th>\n    </tr>\n  </thead>\n\n  <!-- Essentials -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Essentials</strong></td>\n    </tr>\n    <tr><td>Product Collection</td><td>Intel® Xeon® Processor E5 v4 Family</td></tr>\n    <tr><td>Code Name</td><td>Products formerly Broadwell</td></tr>\n    <tr><td>Vertical Segment</td><td>Server</td></tr>\n    <tr><td>Processor Number</td><td>E5-2650LV4</td></tr>\n    <tr><td>Lithography</td><td>14 nm</td></tr>\n    <tr><td>Recommended Customer Price</td><td>$1329.00</td></tr>\n  </tbody>\n\n  <!-- CPU Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>CPU Specifications</strong></td>\n    </tr>\n    <tr><td>Total Cores</td><td>14</td></tr>\n    <tr><td>Total Threads</td><td>28</td></tr>\n    <tr><td>Max Turbo Frequency</td><td>2.50 GHz</td></tr>\n    <tr><td>Intel® Turbo Boost Technology 2.0 Frequency‡</td><td>2.50 GHz</td></tr>\n    <tr><td>Processor Base Frequency</td><td>1.70 GHz</td></tr>\n    <tr><td>Cache</td><td>35 MB Intel® Smart Cache</td></tr>\n    <tr><td>Bus Speed</td><td>9.6 GT/s</td></tr>\n    <tr><td># of QPI Links</td><td>2</td></tr>\n    <tr><td>TDP</td><td>65 W</td></tr>\n  </tbody>\n\n  <!-- Supplemental Information -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Supplemental Information</strong></td>\n    </tr>\n    <tr><td>Marketing Status</td><td>Discontinued</td></tr>\n    <tr><td>Launch Date</td><td>Q1'16</td></tr>\n    <tr><td>Servicing Status</td><td>End of Servicing Updates</td></tr>\n    <tr><td>End of Servicing Updates Date</td><td>Thursday, June 30, 2022</td></tr>\n    <tr><td>Embedded Options Available</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Memory Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Memory Specifications</strong></td>\n    </tr>\n    <tr><td>Max Memory Size (dependent on memory type)</td><td>1.5 TB</td></tr>\n    <tr><td>Memory Types</td><td>DDR4 1600/1866/2133/2400</td></tr>\n    <tr><td>Max # of Memory Channels</td><td>4</td></tr>\n    <tr><td>Max Memory Bandwidth</td><td>76.8 GB/s</td></tr>\n    <tr><td>Physical Address Extensions</td><td>46-bit</td></tr>\n    <tr><td>ECC Memory Supported ‡</td><td>Yes</td></tr>\n  </tbody>\n\n  <!-- Expansion Options -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Expansion Options</strong></td>\n    </tr>\n    <tr><td>Scalability</td><td>2S</td></tr>\n    <tr><td>PCI Express Revision</td><td>3.0</td></tr>\n    <tr><td>PCI Express Configurations ‡</td><td>x4, x8, x16</td></tr>\n    <tr><td>Max # of PCI Express Lanes</td><td>40</td></tr>\n  </tbody>\n\n  <!-- Package Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Package Specifications</strong></td>\n    </tr>\n    <tr><td>Sockets Supported</td><td>FCLGA2011</td></tr>\n    <tr><td>Max CPU Configuration</td><td>2</td></tr>\n    <tr><td>T<sub>CASE</sub></td><td>64°C</td></tr>\n    <tr><td>Package Size</td><td>45 mm x 52.5 mm</td></tr>\n  </tbody>\n\n  <!-- Advanced Technologies -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Advanced Technologies</strong></td>\n    </tr>\n    <tr><td>Intel® Turbo Boost Technology ‡</td><td>2.0</td></tr>\n    <tr><td>Intel® Hyper-Threading Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Transactional Synchronization Extensions</td><td>Yes</td></tr>\n    <tr><td>Intel® 64 ‡</td><td>Yes</td></tr>\n    <tr><td>Instruction Set</td><td>64-bit</td></tr>\n    <tr><td>Instruction Set Extensions</td><td>Intel® AVX2</td></tr>\n    <tr><td>Idle States</td><td>Yes</td></tr>\n    <tr><td>Enhanced Intel SpeedStep® Technology</td><td>Yes</td></tr>\n    <tr><td>Intel® Demand Based Switching</td><td>Yes</td></tr>\n    <tr><td>Thermal Monitoring Technologies</td><td>Yes</td></tr>\n    <tr><td>Intel® Flex Memory Access</td><td>No</td></tr>\n    <tr><td>Intel® Identity Protection Technology ‡</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Security & Reliability -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Security &amp; Reliability</strong></td>\n    </tr>\n    <tr><td>Intel vPro® Eligibility ‡</td><td>Intel vPro® Platform</td></tr>\n    <tr><td>Intel® Secure Key</td><td>Yes</td></tr>\n    <tr><td>Intel® AES New Instructions</td><td>Yes</td></tr>\n    <tr><td>Intel® OS Guard</td><td>Yes</td></tr>\n    <tr><td>Intel® Trusted Execution Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Execute Disable Bit ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology (VT-x) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology for Directed I/O (VT-d) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® VT-x with Extended Page Tables (EPT) ‡</td><td>Yes</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  },
+  {
+    "id": "cmjxz46gl000jmzqbvuyhmhkx",
+    "name": "Intel® Core™ i7-5820K",
+    "categoryId": "cmjxz43zj0001mzqb2kjb65nl",
+    "categoryName": "Processor (CPU)",
+    "qty": 0,
+    "statusId": "cmjxz456o000amzqbaqr2jtqn",
+    "statusName": "Bagus",
+    "locationId": "cmjxz46b7000imzqb4rpm2e67",
+    "locationName": "CompChem I",
+    "description": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: Arial, sans-serif; width: 100%;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\">\n      <th colspan=\"2\" style=\"text-align: left; font-size: 16px;\">Intel® Core™ i7-5820K Processor (15M Cache, up to 3.60 GHz)</th>\n    </tr>\n  </thead>\n\n  <!-- Essentials -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Essentials</strong></td>\n    </tr>\n    <tr><td>Product Collection</td><td>Intel® Core™ X-series Processors</td></tr>\n    <tr><td>Code Name</td><td>Products formerly Haswell E</td></tr>\n    <tr><td>Vertical Segment</td><td>Desktop</td></tr>\n    <tr><td>Processor Number</td><td>i7-5820K</td></tr>\n    <tr><td>Lithography</td><td>22 nm</td></tr>\n  </tbody>\n\n  <!-- CPU Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>CPU Specifications</strong></td>\n    </tr>\n    <tr><td>Total Cores</td><td>6</td></tr>\n    <tr><td>Total Threads</td><td>12</td></tr>\n    <tr><td>Max Turbo Frequency</td><td>3.60 GHz</td></tr>\n    <tr><td>Intel® Turbo Boost Technology 2.0 Frequency‡</td><td>3.60 GHz</td></tr>\n    <tr><td>Processor Base Frequency</td><td>3.30 GHz</td></tr>\n    <tr><td>Cache</td><td>15 MB Intel® Smart Cache</td></tr>\n    <tr><td>Bus Speed</td><td>0 GT/s</td></tr>\n    <tr><td>TDP</td><td>140 W</td></tr>\n  </tbody>\n\n  <!-- Supplemental Information -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Supplemental Information</strong></td>\n    </tr>\n    <tr><td>Marketing Status</td><td>Discontinued</td></tr>\n    <tr><td>Launch Date</td><td>Q3'14</td></tr>\n    <tr><td>Servicing Status</td><td>End of Servicing Lifetime</td></tr>\n    <tr><td>End of Servicing Updates Date</td><td>Wednesday, June 30, 2021</td></tr>\n    <tr><td>Embedded Options Available</td><td>No</td></tr>\n    <tr><td>Included Items</td><td>Please note: The boxed product does not include a fan or heat sink</td></tr>\n    <tr><td>Datasheet</td><td><a href=\"https://www.intel.com/content/www/us/en/collections/content-type/datasheets-and-specification-updates.html?f:@stm_10385_en=[Processors;Intel®+Core™+Processors;Intel®+Core™+X-series+Processors]\">View now</a></td></tr>\n  </tbody>\n\n  <!-- Memory Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Memory Specifications</strong></td>\n    </tr>\n    <tr><td>Max Memory Size (dependent on memory type)</td><td>64 GB</td></tr>\n    <tr><td>Memory Types</td><td>DDR4 1600/1866/2133</td></tr>\n    <tr><td>Max # of Memory Channels</td><td>4</td></tr>\n    <tr><td>Max Memory Bandwidth</td><td>68 GB/s</td></tr>\n    <tr><td>ECC Memory Supported ‡</td><td>No</td></tr>\n  </tbody>\n\n  <!-- Expansion Options -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Expansion Options</strong></td>\n    </tr>\n    <tr><td>Scalability</td><td>1S Only</td></tr>\n    <tr><td>PCI Express Revision</td><td>3.0</td></tr>\n    <tr><td>Max # of PCI Express Lanes</td><td>28</td></tr>\n  </tbody>\n\n  <!-- Package Specifications -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Package Specifications</strong></td>\n    </tr>\n    <tr><td>Sockets Supported</td><td>FCLGA2011</td></tr>\n    <tr><td>Max CPU Configuration</td><td>1</td></tr>\n    <tr><td>T<sub>CASE</sub></td><td>66.8 °C</td></tr>\n    <tr><td>Package Size</td><td>52.5 mm x 45.0 mm</td></tr>\n  </tbody>\n\n  <!-- Advanced Technologies -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Advanced Technologies</strong></td>\n    </tr>\n    <tr><td>Intel® Turbo Boost Technology ‡</td><td>2.0</td></tr>\n    <tr><td>Intel® Hyper-Threading Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® 64 ‡</td><td>Yes</td></tr>\n    <tr><td>Instruction Set</td><td>64-bit</td></tr>\n    <tr><td>Instruction Set Extensions</td><td>Intel® SSE4.2, Intel® AVX2</td></tr>\n    <tr><td>Idle States</td><td>Yes</td></tr>\n    <tr><td>Enhanced Intel SpeedStep® Technology</td><td>Yes</td></tr>\n    <tr><td>Intel® Demand Based Switching</td><td>No</td></tr>\n    <tr><td>Thermal Monitoring Technologies</td><td>Yes</td></tr>\n    <tr><td>Intel® Identity Protection Technology ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Smart Response Technology</td><td>Yes</td></tr>\n  </tbody>\n\n  <!-- Security & Reliability -->\n  <tbody>\n    <tr style=\"background-color: #e6e6e6;\">\n      <td colspan=\"2\"><strong>Security &amp; Reliability</strong></td>\n    </tr>\n    <tr><td>Intel® AES New Instructions</td><td>Yes</td></tr>\n    <tr><td>Intel® Trusted Execution Technology ‡</td><td>No</td></tr>\n    <tr><td>Execute Disable Bit ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology (VT-x) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® Virtualization Technology for Directed I/O (VT-d) ‡</td><td>Yes</td></tr>\n    <tr><td>Intel® VT-x with Extended Page Tables (EPT) ‡</td><td>Yes</td></tr>\n  </tbody>\n</table>",
+    "specs": {
+      "cpu": [],
+      "motherboard": [],
+      "ram": [],
+      "gpu": [],
+      "storage": [],
+      "psu": [],
+      "case": []
+    }
+  }
+]

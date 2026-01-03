@@ -1,13 +1,17 @@
-// lib/store.ts
 import { create } from 'zustand';
 import { InventoryItem } from './inventory-data';
+
+interface OptionData {
+  id: string;
+  name: string;
+}
 
 interface InventoryState {
   // State
   inventory: InventoryItem[];
-  categories: string[];
-  statuses: string[];
-  locations: string[];
+  categories: OptionData[];
+  statuses: OptionData[];
+  locations: OptionData[];
   searchQuery: string;
   categoryFilter: string;
   filteredInventory: InventoryItem[];
@@ -16,18 +20,22 @@ interface InventoryState {
   currentPage: number;
   itemsPerPage: number;
   totalPages: number;
+  selectedItems: string[]; // To store IDs of selected items
 
   // Actions
   initializeData: (data: {
     inventory: InventoryItem[];
-    categories: string[];
-    statuses: string[];
-    locations: string[];
+    categories: OptionData[];
+    statuses: OptionData[];
+    locations: OptionData[];
   }) => void;
   setSearchQuery: (query: string) => void;
   setCategoryFilter: (category: string) => void;
   setSort: (column: keyof InventoryItem, direction: 'asc' | 'desc') => void;
   setCurrentPage: (page: number) => void;
+  toggleItemSelection: (itemId: string) => void;
+  toggleSelectAll: () => void;
+  clearSelection: () => void;
   _filterInventory: () => void; // internal action
 }
 
@@ -45,6 +53,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   currentPage: 1,
   itemsPerPage: 10, // Default items per page
   totalPages: 1,
+  selectedItems: [],
 
   // Action to initialize data from server
   initializeData: (data) => {
@@ -53,6 +62,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       categories: data.categories,
       statuses: data.statuses,
       locations: data.locations,
+      selectedItems: [], // Clear selection on new data
     });
     // Reset to first page when data is initialized
     set({ currentPage: 1 });
@@ -61,14 +71,14 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
 
   // Action to update search query
   setSearchQuery: (query) => {
-    set({ searchQuery: query });
+    set({ searchQuery: query, selectedItems: [] });
     set({ currentPage: 1 }); // Reset to first page on search
     get()._filterInventory();
   },
 
   // Action to update category filter
   setCategoryFilter: (category) => {
-    set({ categoryFilter: category });
+    set({ categoryFilter: category, selectedItems: [] });
     set({ currentPage: 1 }); // Reset to first page on filter change
     get()._filterInventory();
   },
@@ -85,6 +95,35 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     set({ currentPage: page });
     get()._filterInventory(); // Re-apply filters/sorts to get correct page data
   },
+  
+  // Action to toggle selection for a single item
+  toggleItemSelection: (itemId: string) => {
+    set((state) => {
+      const selectedItems = state.selectedItems.includes(itemId)
+        ? state.selectedItems.filter((id) => id !== itemId)
+        : [...state.selectedItems, itemId];
+      return { selectedItems };
+    });
+  },
+
+  // Action to toggle select all currently filtered items
+  toggleSelectAll: () => {
+    set((state) => {
+      const filteredIds = state.filteredInventory.map((item) => item.id);
+      const allSelected = filteredIds.every((id) => state.selectedItems.includes(id));
+      if (allSelected) {
+        return { selectedItems: state.selectedItems.filter(id => !filteredIds.includes(id)) };
+      } else {
+        const newSelection = [...new Set([...state.selectedItems, ...filteredIds])];
+        return { selectedItems: newSelection };
+      }
+    });
+  },
+
+  // Action to clear selection
+  clearSelection: () => {
+    set({ selectedItems: [] });
+  },
 
   // Internal action to perform filtering, sorting, and pagination
   _filterInventory: () => {
@@ -95,15 +134,15 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     processedInventory = processedInventory
       .filter(item => {
         if (categoryFilter === 'all') return true;
-        return item.category === categoryFilter;
+        return item.categoryId === categoryFilter;
       })
       .filter((item) => {
         if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
         return (
           (item.name && item.name.toLowerCase().includes(query)) ||
-          (item.category && item.category.toLowerCase().includes(query)) ||
-          (item.location && item.location.toLowerCase().includes(query))
+          (item.categoryName && item.categoryName.toLowerCase().includes(query)) ||
+          (item.locationName && item.locationName.toLowerCase().includes(query))
         );
       });
 

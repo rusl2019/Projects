@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { InventoryItem } from "@/lib/inventory-data";
 import { useInventoryStore } from "@/lib/store"; // Import the Zustand store
+import { Input } from "./ui/input";
 
 type SortableInventoryColumns = 'name' | 'categoryName' | 'qty' | 'statusName' | 'locationName';
 
@@ -23,7 +24,7 @@ export default function InventoryTable({
   onDeleteItem,
   mutatingItemId,
 }: InventoryTableProps) {
-  const { filteredInventory, sortColumn, sortDirection, setSort } = useInventoryStore(); // Get filtered and sorted data, and sort state from the store
+  const { filteredInventory, sortColumn, sortDirection, setSort, selectedItems, toggleSelectAll, toggleItemSelection } = useInventoryStore(); // Get filtered and sorted data, and sort state from the store
 
   const handleSort = (column: SortableInventoryColumns) => {
     if (sortColumn === column) {
@@ -49,6 +50,8 @@ export default function InventoryTable({
     return <ArrowDown className="ml-2 h-4 w-4 flex-shrink-0" />;
   };
 
+  const areAllFilteredItemsSelected = filteredInventory.length > 0 && filteredInventory.every(item => selectedItems.includes(item.id));
+
   return (
     <div className="lg:col-span-2 space-y-4">
       <Card className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -57,6 +60,15 @@ export default function InventoryTable({
             <Table className="w-full text-left">
               <TableHeader>
                 <TableRow className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
+                <TableHead className="px-6 py-4">
+                    <Input
+                      type="checkbox"
+                      className="cursor-pointer"
+                      checked={areAllFilteredItemsSelected}
+                      onChange={toggleSelectAll}
+                      aria-label="Select all items on this page"
+                    />
+                  </TableHead>
                   <TableHead className="px-6 py-4">
                     <button
                       className="flex items-center justify-between w-full cursor-pointer transition-colors hover:bg-slate-100/50 -mx-3 px-3 rounded"
@@ -109,7 +121,7 @@ export default function InventoryTable({
               <TableBody id="inventory-list">
                 {filteredInventory.length === 0 ? (
                   <TableRow className="text-center">
-                    <TableCell colSpan={4} className="py-20 text-slate-400 text-sm italic">
+                    <TableCell colSpan={5} className="py-20 text-slate-400 text-sm italic">
                       Belum ada data inventori atau tidak ada hasil yang cocok.
                     </TableCell>
                   </TableRow>
@@ -154,6 +166,15 @@ export default function InventoryTable({
                           isBeingEdited ? "editing-row" : "hover:bg-slate-50/50"
                         } ${isMutating ? "opacity-50 pointer-events-none" : ""}`}
                       >
+                        <TableCell className="px-6 py-5 align-top">
+                          <Input
+                            type="checkbox"
+                            className="cursor-pointer"
+                            checked={selectedItems.includes(item.id)}
+                            onChange={() => toggleItemSelection(item.id)}
+                            aria-label={`Select item ${item.name}`}
+                          />
+                        </TableCell>
                         <TableCell className="px-6 py-5 align-top">
                           <div className="flex flex-col">
                             <Link href={`/inventory/${item.id}`} className="font-bold text-blue-600 hover:underline text-sm">

@@ -5,17 +5,19 @@ import * as XLSX from 'xlsx';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { addCategory, addStatus, addLocation, deleteInventory, importInventory } from "@/lib/actions";
+import { addCategory, addStatus, addLocation, deleteInventory, importInventory, bulkDeleteInventory } from "@/lib/actions";
 import { InventoryItem, Specs } from "@/lib/inventory-data";
 import InventoryForm from "@/components/InventoryForm";
 import InventoryTable from "@/components/InventoryTable";
 import AddOptionModal from "@/components/AddOptionModal";
 import ImportExcelModal from "@/components/ImportExcelModal"; // Import the modal
+import ImportJsonModal from "@/components/ImportJsonModal"; // Import the JSON modal
 import { useInventoryStore } from "@/lib/store";
 import { toast } from "sonner";
 import PaginationControls from "@/components/PaginationControls";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
+import { Trash2, FileCog } from "lucide-react";
 
 interface OptionData {
   id: string;
@@ -48,11 +50,15 @@ export default function InventoryPage({
     initializeData,
     setSearchQuery,
     setCategoryFilter,
+    selectedItems,
+    clearSelection,
   } = useInventoryStore();
 
   const [isPending, startTransition] = useTransition();
   const [mutatingItemId, setMutatingItemId] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false); // State for import modal
+  const [showImportJsonModal, setShowImportJsonModal] = useState(false);
+  const [showDataActions, setShowDataActions] = useState(false);
   const router = useRouter();
 
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
@@ -96,6 +102,19 @@ export default function InventoryPage({
           toast.error(result.message);
         }
         setMutatingItemId(null);
+      });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (confirm(`Hapus ${selectedItems.length} item ini secara permanen?`)) {
+      startTransition(async () => {
+        const result = await bulkDeleteInventory(selectedItems);
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
       });
     }
   };
@@ -217,35 +236,86 @@ export default function InventoryPage({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => setShowImportModal(true)}
-                  variant="outline"
-                  size="sm"
-                  className="text-[10px] bg-white border-blue-200 text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg font-bold uppercase shadow-sm h-auto"
-                  disabled={isPending}
-                >
-                  Import Excel
-                </Button>
-                <Button
-                  onClick={handleExportExcel}
-                  variant="outline"
-                  size="sm"
-                  className="text-[10px] bg-white border-green-200 text-green-700 hover:bg-green-50 px-3 py-2 rounded-lg font-bold uppercase shadow-sm h-auto"
-                  disabled={isPending}
-                >
-                  Export Excel
-                </Button>
-                <Button
-                  id="export-btn"
-                  onClick={handleExport}
-                  variant="outline"
-                  size="sm"
-                  className="text-[10px] bg-white border border-slate-200 px-3 py-2 rounded-lg font-bold uppercase shadow-sm h-auto"
-                  disabled={isPending}
-                >
-                  Backup JSON
-                </Button>
+              <div className="flex gap-2 items-center">
+              {selectedItems.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-slate-600">
+                      {selectedItems.length} item terpilih
+                    </span>
+                    <Button
+                      onClick={handleBulkDelete}
+                      variant="destructive"
+                      size="sm"
+                      className="text-[10px] bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-bold uppercase shadow-sm h-auto flex items-center gap-1"
+                      disabled={isPending}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Hapus
+                    </Button>
+                  </div>
+                )}
+                <div className="relative">
+                  <Button
+                      onClick={() => setShowDataActions(!showDataActions)}
+                      variant="outline"
+                      size="sm"
+                      className="text-[10px] bg-white border-slate-200 px-3 py-2 rounded-lg font-bold uppercase shadow-sm h-auto flex items-center gap-1"
+                      disabled={isPending}
+                  >
+                      <FileCog className="h-3 w-3" />
+                      <span>Data</span>
+                  </Button>
+                  {showDataActions && (
+                      <div
+                          className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border"
+                          onMouseLeave={() => setShowDataActions(false)}
+                      >
+                          <div className="py-1">
+                              <button
+                                  onClick={() => {
+                                      setShowImportModal(true);
+                                      setShowDataActions(false);
+                                  }}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  disabled={isPending}
+                              >
+                                  Import Excel
+                              </button>
+                              <button
+                                  onClick={() => {
+                                      setShowImportJsonModal(true);
+                                      setShowDataActions(false);
+                                  }}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  disabled={isPending}
+                              >
+                                  Import JSON
+                              </button>
+                              <div className="border-t my-1"></div>
+                              <button
+                                  onClick={() => {
+                                      handleExportExcel();
+                                      setShowDataActions(false);
+                                  }}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  disabled={isPending}
+                              >
+                                  Export Excel
+                              </button>
+                              <button
+                                  onClick={() => {
+                                      handleExport();
+                                      setShowDataActions(false);
+                                  }}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  disabled={isPending}
+                              >
+                                  Export JSON (Backup)
+                              </button>
+                          </div>
+                      </div>
+                  )}
+                </div>
               </div>
             </div>
             <InventoryTable
@@ -264,6 +334,11 @@ export default function InventoryPage({
       <ImportExcelModal 
         isOpen={showImportModal}
         onOpenChange={setShowImportModal}
+        onImport={handleImport}
+      />
+      <ImportJsonModal
+        isOpen={showImportJsonModal}
+        onOpenChange={setShowImportJsonModal}
         onImport={handleImport}
       />
       <AddOptionModal
